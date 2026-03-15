@@ -1,0 +1,15 @@
+{
+  "name": "terminal-backend",
+  "version": "1.0.0",
+  "description": "Command execution backend for terminal.pierceoxley.ca",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+
+  },
+  
+  "dependencies": {
+    "express": "^4.18.2"
+
+  }
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <body>
+        <header>
+            <h1>Terminal</h1>
+            <div id="status-bar">
+                <!-- Service status indicators populated by status.js -->
+
+            </div>
+        </header>
+
+        <main>
+            <section id="commands">
+                <h2>Commands</h2>
+                <div id="command-grid">
+                    <!-- Populated by commands.js -->
+
+                </div>
+            </section>
+
+            <section id="output">
+                <h2>Output</h2>
+                <pre id="output-log"></pre>
+                
+            </section>
+        </main>
+
+        <script src="scripts/commands.js" type="module"></script>
+        <script src="scripts/status.js" type="module"></script>
+
+    </body>
+</html>

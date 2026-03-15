@@ -1,0 +1,15 @@
+[Unit]
+Description=Terminal backend for terminal.pierceoxley.ca
+After=network.target
+
+[Service]
+Type=simple
+User=terminal
+WorkingDirectory=/var/www/terminal.pierceoxley.ca/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=false
+
+[Install]
+WantedBy=multi-user.target
