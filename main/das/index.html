@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroStream</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+
+        }
+
+        body {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+            font-family: system-ui, -apple-system, sans-serif;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #111;
+            background: #fff;
+
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 2.5rem 0 0.25rem;
+            line-height: 1.2;
+
+        }
+
+        h1:first-of-type {
+            margin-top: 0;
+
+        }
+
+        h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #444;
+            margin: 2rem 0 0.5rem;
+
+        }
+
+        p {
+            margin: 0 0 1rem;
+            color: #222;
+
+        }
+
+        a {
+            color: #111;
+            text-underline-offset: 3px;
+
+        }
+
+        a:hover {
+            color: #555;
+
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e5e5e5;
+            margin: 2.5rem 0;
+
+        }
+
+        .screenshot {
+            margin: 1.5rem 0;
+
+        }
+
+        .screenshot img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid #e5e5e5;
+            display: block;
+
+        }
+
+        .screenshot figcaption {
+            font-size: 0.875rem;
+            color: #777;
+            margin-top: 0.5rem;
+
+        }
+    </style>
+</head>
+
+<body>
+    <!--
+        Converted from Notion Markdown by https://markdowntohtml.com/
+    -->
+
+    <h1 id="aerostream">AeroStream</h1>
+    <h2 id="worldwide-open-source-realtime-aircraft-tracking">Worldwide Open Source &amp; Realtime Aircraft Tracking</h2>
+    <p>AeroStream is a publicly deployed full stack web app that renders live aircraft positions across the globe in real time. It gathers flight telemetry (ADS-B data) from the <a href="http://ADSB.lol">ADSB.lol</a> public api — which aggregates ADS-B radio signals from a global network of ground receivers and relays. Using this data, it can then plot each aircraft on an interactive map, displaying information about callsign, altitude, speed, heading, and more. The site runs continuously on a self-hosted Ubuntu Linux server with over 99.9% uptime (last month average), and is accessible to anyone at <a href="http://airtraffic.online">airtraffic.online</a>.</p>
+
+    <hr>
+
+    <h1 id="implementation">Implementation</h1>
+    <h2 id="frontend-architecture">Frontend Architecture</h2>
+    <p>The frontend (user side) is designed in vanilla JavaScript, and currently organized into four purpose-built ES modules: a session manager that handles website startup and idle timeouts, a UI manager that deals with appearance settings and label rendering, a keyboard handeler that manages keyboard shortcuts and inputs, and a map controller that owns location data and the Leaflet.js map states. As the project grew, the seperation was made to better match professional standards in web design.</p>
+    <p>Visually, the map can dynamically adjust the refresh rate of its data between 0.5 and 7.5 seconds based on the displayed zoom level, to better support processing times for larger sets of aircraft. This also reduces unnecessary network load when the user is zoomed out. The map interface supports three theme modes, an accessibility/display enhanced mode, labeled or textless options, and more, with each managed through an array-indexed state pattern for robustness. With additional site wide settings, over 200 custom visual permutations are supported.</p>
+
+    <h2 id="backend-proxy-tools">Backend &amp; Proxy Tools</h2>
+    <p>Because modern browsers enforce the same-origin policy, the frontend cannot directly query external APIs from a different domain (specifically, this blocks <a href="http://ADSB.lol">ADSB.lol</a> directly). To solve this problem, I built a custom Node.js proxy server build on Express, which runs on a public facing port of my home server and forwards requests to ADSB.lol with the correct CORS headers. On the server machine itself, the proxy is enabled as a systemmd service under a dedicated unprivileged system users, meaning it restarts automatically on failure and survives server reboots without any manual intervention. To access this, the website goes to its own subdomain — <a href="http://api.airtraffic.online">api.airtraffic.online</a> — and is reverse proxied through nginx to reach it, meaning requests stay more secure once they reach the server.</p>
+
+    <h2 id="server-infrastructure">Server Infrastructure</h2>
+    <p>The entire stack runs on a repurposed desktop machine (i5-3000 series, 12 GB DDR3) running headless on Ubuntu Server. This is a command line OS, and I administer it remotely over key-only SSH, as well as a custom secured terminal on my personal site. Further security measures include a disabled root login, and active fail2ban configs that monitor intrusion attempts.</p>
+    <p>On the server, nginx acts as the reverse proxy and static file provider, and routes all the traffic across the multiple subdomains, including a beta environment for testing (<a href="http://beta.airtraffic.online">beta.airtraffic.online</a>), the api endpoint, a git mirror for access when standard repository access is blocked on other machines' networks, and more. TLS certificates from Let's Encrypt are issued and auto-renewed using certbot, and deployment is handled by shell scripts that pull from GitHub into the beta environment, then promote to production later once I've finished testing. This was done to replicate, in part, a miniature version of the staged rollout pipelines used in the industry.</p>
+
+    <hr>
+
+    <h1 id="additional-information">Additional Information</h1>
+    <h2 id="exceeding-typical-course-requirements">Exceeding Typical Course Requirements</h2>
+    <p>High school programming courses typically only reach to local execution with single program designs. Conversely, AeroStream spans the full delivery chain; from the modular yet unified frontend design, to the custom API endpoint, the custom backend proxy server, and the production ready Linux distro and server hardware, each layer builds on top of the last to provide the full deployment tech stack. Every part took days of research and problem solving. CORS mechanics, nginx location-block ordering, systemd unit file configs, and git promotion scripts are not topics covered in any high school course, yet they are all present to work together in a live, public system.</p>
+
+    <h2 id="codebase">Codebase</h2>
+    <p>The complete README file for this project can be accessed from the AeroStream repository. Specifically, it is available on GitHub here: <a href="https://github.com/Parcley27/AeroStream/blob/main/README.md">https://github.com/Parcley27/AeroStream/blob/main/README.md</a>. The README contains more information about the software implementation, how to use the site, and how the site itself was set up for public access. The code itself is documented where appropriate, and largely written to help people with pull requests and/or forks.</p>
+
+    <h2 id="screenshots">Screenshots</h2>
+    <figure class="screenshot">
+        <img src="assets/GitHub.png" alt="GitHub Page">
+        <figcaption>AeroStream repository as viewed on GitHub</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+        <img src="assets/Terminal.png" alt="Terminal Display">
+        <figcaption>Remote access dashboard example for proxy-server.js</figcaption>
+    </figure>
+
+    <figure class="screenshot">
+        <img src="assets/Homepage.png" alt="Homepage">
+        <figcaption>Website homepage</figcaption>
+    </figure>
+    
+    <figure class="screenshot">
+        <img src="assets/Aircraft Panel.png" alt="Aircraft Panel">
+        <figcaption>Customized aircraft panel</figcaption>
+    </figure>
+
+</body>
+</html>
