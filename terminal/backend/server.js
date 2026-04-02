@@ -26,7 +26,9 @@ const COMMANDS = {
     'stop-proxy':               ['sudo', 'systemctl', 'stop',    'aerostream-proxy.service'],
     'start-proxy':              ['sudo', 'systemctl', 'start',   'aerostream-proxy.service'],
 
-    // Other stuff here later (email, coding club git, lechat, minecraft, etc)
+    'sync-coding-club': ['sudo', '/usr/local/bin/sync-coding-club-repo.sh'],
+
+    // Other stuff here later (email, coding club git extras, lechat, minecraft, etc)
 
 };
 
