@@ -20,7 +20,7 @@ function render(statuses) {
     Object.entries(statuses).forEach(([service, state]) => {
         const chip = document.createElement('span');
         chip.className = `status-chip ${state}`; // 'active', 'inactive', 'failed'
-        chip.textContent = `${service}: ${state}`;
+        chip.textContent = `${service.replace(": ", ":\n")}: ${state}`;
         bar.appendChild(chip);
 
     });
