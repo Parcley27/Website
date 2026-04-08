@@ -15,7 +15,7 @@ h1, h2 {
 
 /* Status bar */
 #status-bar {
-    display: flex;
+    display: grid;
     gap: 0.5rem;
     flex-wrap: wrap;
     margin-top: 0.5rem;
@@ -35,9 +35,10 @@ h1, h2 {
 
 /* Command grid */
 #command-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1rem;
     margin-top: 0.5rem;
 
 }
@@ -48,6 +49,7 @@ h1, h2 {
     border: 1px solid #aaa;
     background: #fff;
     cursor: pointer;
+    white-space: pre-line;
 
 }
 
