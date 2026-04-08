@@ -1,12 +1,12 @@
 const COMMANDS = [
-    { key: 'update-pierce-beta',    label: 'Update Pierce Beta'    },
-    { key: 'promote-pierce',        label: 'Promote Pierce'        },
-    { key: 'update-aerostream-beta',label: 'Update AeroStream Beta'},
-    { key: 'promote-aerostream',    label: 'Promote AeroStream'    },
-    { key: 'restart-proxy',         label: 'Restart Proxy'         },
-    { key: 'stop-proxy',            label: 'Stop Proxy'            },
-    { key: 'start-proxy',           label: 'Start Proxy'           },
-    { key: 'sync-coding-club',      label: 'Sync Coding Club'      },
+    { key: 'update-pierce-beta',    label: 'Update beta.pierceoxley.ca'   },
+    { key: 'promote-pierce',        label: 'Update pierceoxley.ca'        },
+    { key: 'update-aerostream-beta',label: 'Update beta.aerostream.online'},
+    { key: 'promote-aerostream',    label: 'Update aerostream.online'     },
+    { key: 'restart-proxy',         label: 'Restart AeroStream Proxy'     },
+    { key: 'stop-proxy',            label: 'Stop AeroStream Proxy'        },
+    { key: 'start-proxy',           label: 'Start AeroStream Proxy'       },
+    { key: 'sync-coding-club',      label: 'Sync Coding Club Repository'  },
 
 ];
 
