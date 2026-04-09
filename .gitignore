@@ -3,3 +3,5 @@
 termial/backend/node_modules/
 
 /.claude/
+
+.DS_Store
