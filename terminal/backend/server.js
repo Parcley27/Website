@@ -29,6 +29,8 @@ const COMMANDS = {
     'restart-git-sync':  ['sudo', '/usr/local/bin/restart-git-sync.sh'],
     'stop-git-sync':    ['sudo', 'systemctl', 'stop', 'git-sync'],
 
+    'restart-backend': ['sudo', 'systemctl', 'restart', 'terminal-backend'],
+
     // Other stuff here later (email, coding club git extras, lechat, minecraft, etc)
 
 };

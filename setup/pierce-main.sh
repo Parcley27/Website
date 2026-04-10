@@ -39,12 +39,6 @@ chown -R www-data:www-data "$TERMINAL_DIR"
 chmod -R 755 "$TERMINAL_DIR"
 echo -e "${GREEN}Terminal frontend synced${NC}"
 
-echo -e "${YELLOW}Syncing terminal backend...${NC}"
-cp "$BETA_DIR/terminal/backend/server.js" "$TERMINAL_DIR/backend/server.js"
-chown terminal:terminal "$TERMINAL_DIR/backend/server.js"
-systemctl restart terminal-backend
-echo -e "${GREEN}Terminal backend synced and restarted${NC}"
-
 echo -e "${YELLOW}Testing nginx configuration...${NC}"
 nginx -t
 if [ $? -eq 0 ]; then
