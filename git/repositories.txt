@@ -1,1 +1,4 @@
 https://github.com/Parcley27/Coding-Club-Game.git /coding-club-project
+https://github.com/Parcley27/Website.git /website
+https://github.com/Parcley27/Aerostrem.git /aerostream
+https://github.com/Parcley27/Exoplanets.git /exoplanets
