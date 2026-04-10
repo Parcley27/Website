@@ -1,4 +1,4 @@
-const POLL_INTERVAL = 10000;
+const POLL_INTERVAL = 5000;
 const bar = document.getElementById('status-bar');
 
 async function fetchStatus() {

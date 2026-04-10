@@ -67,6 +67,8 @@ app.get('/status', (req, res) => {
         'nginx',
         'fail2ban',
         'fcgiwrap',
+        'git-sync',
+        'terminal-backend',
 
     ];
 
