@@ -7,9 +7,9 @@ const COMMANDS = [
     { key: 'restart-proxy',         label: 'Restart\nAeroStream Proxy'     },
     { key: 'stop-proxy',            label: 'Stop\nAeroStream Proxy'        },
     // { key: 'sync-coding-club',      label: 'Sync\nCoding Club Repository'  },
+    { key: 'restart-backend',       label: 'Restart\nTerminal Backend'     },
     { key: 'restart-git-sync',       label: 'Restart\nGit Repository Sync' },
     { key: 'stop-git-sync',         label: 'Stop\nGit Repository Sync'     },
-    { key: 'restart-backend',       label: 'Restart\nTerminal Backend'     },
 
 ];
 
