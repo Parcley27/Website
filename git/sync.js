@@ -34,9 +34,10 @@ function parseRepos() {
 async function ensureCloned({ url, dir }) {
     if (!fs.existsSync(dir)) {
         console.log(`Cloning ${url} into ${dir}...`);
-
+        
         await run('git', ['clone', '--mirror', url, dir], REPOS_ROOT);
         await run('git', ['config', 'remote.origin.fetch', '+refs/*:refs/*'], dir);
+        await run('git', ['config', 'http.receivepack', 'true'], dir);
 
         console.log(`Cloned ${url}`);
 
