@@ -24,9 +24,9 @@ function parseRepos() {
         .map(line => line.trim())
         .filter(line => line && !line.startsWith('#'))
         .map(line => {
-            const [url, webPath] = line.split(/\s+/);
+            const [url, webPath, mode] = line.split(/\s+/);
             const dir = path.join(REPOS_ROOT, webPath.replace(/^\//, ''));
-            return { url, webPath, dir };
+            return { url, webPath, dir, mode: mode || 'mirror' };
 
         });
 }
@@ -44,13 +44,17 @@ async function ensureCloned({ url, dir }) {
     }
 }
 
-async function syncRepo({ url, dir, webPath }) {
+async function syncRepo({ url, dir, webPath, mode }) {
     const timestamp = new Date().toISOString();
     
     try {
         await ensureCloned({ url, dir });
         await run('git', ['config', 'http.receivepack', 'true'], dir);
-        await run('git', ['push', '--mirror'], dir);
+        if (mode === 'sync') {
+            await run('git', ['push', '--mirror'], dir);
+
+        }
+        
         await run('git', ['remote', 'update', '--prune'], dir);
 
         console.log(`[${timestamp}] Synced ${webPath}`);
