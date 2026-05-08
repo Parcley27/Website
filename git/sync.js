@@ -46,9 +46,10 @@ async function ensureCloned({ url, dir }) {
 
 async function syncRepo({ url, dir, webPath }) {
     const timestamp = new Date().toISOString();
-
+    
     try {
         await ensureCloned({ url, dir });
+        await run('git', ['config', 'http.receivepack', 'true'], dir);
         await run('git', ['push', '--mirror'], dir);
         await run('git', ['remote', 'update', '--prune'], dir);
 
