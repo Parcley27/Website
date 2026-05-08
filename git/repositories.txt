@@ -3,3 +3,5 @@ https://github.com/Parcley27/Website.git /website
 https://github.com/Parcley27/Aerostream.git /aerostream
 https://github.com/Parcley27/Exoplanets.git /exoplanets
 https://github.com/Parcley27/Engines.git /engines
+https://github.com/CouldNot/personal-website.git /dale-website
+https://github.com/CouldNot/neetcode150.git /neetcode150
