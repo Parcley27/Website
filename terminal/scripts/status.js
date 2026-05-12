@@ -1,4 +1,4 @@
-const POLL_INTERVAL = 10000;
+const POLL_INTERVAL = 5000;
 const bar = document.getElementById('status-bar');
 
 async function fetchStatus() {
@@ -20,7 +20,7 @@ function render(statuses) {
     Object.entries(statuses).forEach(([service, state]) => {
         const chip = document.createElement('span');
         chip.className = `status-chip ${state}`; // 'active', 'inactive', 'failed'
-        chip.textContent = `${service}: ${state}`;
+        chip.textContent = `${service}:\n${state}`;
         bar.appendChild(chip);
 
     });

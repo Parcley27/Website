@@ -26,7 +26,10 @@ const COMMANDS = {
     'stop-proxy':               ['sudo', 'systemctl', 'stop',    'aerostream-proxy.service'],
     'start-proxy':              ['sudo', 'systemctl', 'start',   'aerostream-proxy.service'],
 
-    'sync-coding-club': ['sudo', '/usr/local/bin/sync-coding-club-repo.sh'],
+    'restart-git-sync':  ['sudo', '/usr/local/bin/restart-git-sync.sh'],
+    'stop-git-sync':    ['sudo', 'systemctl', 'stop', 'git-sync'],
+
+    'restart-backend': ['sudo', 'systemctl', 'restart', 'terminal-backend'],
 
     // Other stuff here later (email, coding club git extras, lechat, minecraft, etc)
 
@@ -64,6 +67,8 @@ app.get('/status', (req, res) => {
         'nginx',
         'fail2ban',
         'fcgiwrap',
+        'git-sync',
+        'terminal-backend',
 
     ];
 

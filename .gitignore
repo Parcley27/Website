@@ -2,4 +2,8 @@
 
 termial/backend/node_modules/
 
+/git/repositories/
+
 /.claude/
+
+.DS_Store

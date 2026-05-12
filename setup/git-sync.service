@@ -1,0 +1,13 @@
+[Unit]
+Description=Git Mirror Sync
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node /usr/local/bin/sync.js
+Restart=on-failure
+User=www-data
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-year.target
