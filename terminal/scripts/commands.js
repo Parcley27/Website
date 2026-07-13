@@ -10,6 +10,8 @@ const COMMANDS = [
     { key: 'restart-backend',       label: 'Restart\nTerminal Backend'     },
     { key: 'restart-git-sync',       label: 'Restart\nGit Repository Sync' },
     { key: 'stop-git-sync',         label: 'Stop\nGit Repository Sync'     },
+    { key: 'restart-call-server', label: 'Restart\nCall Server' },
+    { key: 'stop-call-server',    label: 'Stop\nCall Server'    },
 
 ];
 
