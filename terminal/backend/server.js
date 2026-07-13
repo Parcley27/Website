@@ -72,7 +72,7 @@ app.get('/status', (req, res) => {
         'fcgiwrap',
         'git-sync',
         'terminal-backend',
-        'accessmro-calls',
+        'accessmri-calls',
 
     ];
 
