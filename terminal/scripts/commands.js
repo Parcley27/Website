@@ -12,6 +12,7 @@ const COMMANDS = [
     { key: 'stop-git-sync',         label: 'Stop\nGit Repository Sync'     },
     { key: 'restart-call-server', label: 'Restart\nCall Server' },
     { key: 'stop-call-server',    label: 'Stop\nCall Server'    },
+    { key: 'update-call-server', label: 'Update\nCall Server' },
 
 ];
 
