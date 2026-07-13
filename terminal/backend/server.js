@@ -33,6 +33,9 @@ const COMMANDS = {
 
     // Other stuff here later (email, coding club git extras, lechat, minecraft, etc)
 
+    'restart-call-server': ['sudo', 'systemctl', 'restart', 'accessmri-calls.service'],
+    'stop-call-server':    ['sudo', 'systemctl', 'stop',    'accessmri-calls.service'],
+
 };
 
 // POST /run { "command": "<key>" }
@@ -69,6 +72,7 @@ app.get('/status', (req, res) => {
         'fcgiwrap',
         'git-sync',
         'terminal-backend',
+        'accessmro-calls',
 
     ];
 
