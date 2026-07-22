@@ -33,7 +33,7 @@ const COMMANDS = {
 
     // Other stuff here later (email, coding club git extras, lechat, minecraft, etc)
 
-    'restart-call-server': ['sudo', 'systemctl', 'restart', 'accessmri-calls.service'],
+    'restart-call-server': ['sudo', '/usr/local/bin/accessmri-restart.sh'],
     'stop-call-server':    ['sudo', 'systemctl', 'stop',    'accessmri-calls.service'],
     'update-call-server': ['sudo', '/usr/local/bin/accessmri-update.sh'],
 
