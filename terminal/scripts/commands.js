@@ -13,7 +13,7 @@ const COMMANDS = [
     { key: 'restart-call-server',   label: 'Restart\nCall Server' },
     { key: 'stop-call-server',      label: 'Stop\nCall Server'    },
     { key: 'update-call-server',    label: 'Update\nCall Server' },
-    { key: 'reinstall-call-server', label: 'Reinstall Deps &\nRecache' },
+    { key: 'reinstall-call-server', label: 'Reinstall \n Call Data' },
 
 ];
 
