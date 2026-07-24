@@ -36,6 +36,7 @@ const COMMANDS = {
     'restart-call-server': ['sudo', '/usr/local/bin/accessmri-restart.sh'],
     'stop-call-server':    ['sudo', 'systemctl', 'stop',    'accessmri-calls.service'],
     'update-call-server': ['sudo', '/usr/local/bin/accessmri-update.sh'],
+    'reinstall-call-server': ['sudo', '/usr/local/bin/accessmri-reinstall.sh'],
 
 };
 

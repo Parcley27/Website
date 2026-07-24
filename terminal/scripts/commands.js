@@ -8,11 +8,12 @@ const COMMANDS = [
     { key: 'stop-proxy',            label: 'Stop\nAeroStream Proxy'        },
     // { key: 'sync-coding-club',      label: 'Sync\nCoding Club Repository'  },
     { key: 'restart-backend',       label: 'Restart\nTerminal Backend'     },
-    { key: 'restart-git-sync',       label: 'Restart\nGit Repository Sync' },
+    { key: 'restart-git-sync',      label: 'Restart\nGit Repository Sync' },
     { key: 'stop-git-sync',         label: 'Stop\nGit Repository Sync'     },
-    { key: 'restart-call-server', label: 'Restart\nCall Server' },
-    { key: 'stop-call-server',    label: 'Stop\nCall Server'    },
-    { key: 'update-call-server', label: 'Update\nCall Server' },
+    { key: 'restart-call-server',   label: 'Restart\nCall Server' },
+    { key: 'stop-call-server',      label: 'Stop\nCall Server'    },
+    { key: 'update-call-server',    label: 'Update\nCall Server' },
+    { key: 'reinstall-call-server', label: 'Reinstall Deps &\nRecache' },
 
 ];
 
