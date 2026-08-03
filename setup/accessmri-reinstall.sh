@@ -27,6 +27,8 @@ fi
 
 echo -e "${GREEN}Application directory found${NC}"
 
+cd "$APP_DIR"
+
 echo -e "${YELLOW}Installing dependencies from requirements.txt...${NC}"
 sudo -u accessmri "$VENV_PIP" install -r "$APP_DIR/requirements.txt"
 echo -e "${GREEN}Dependencies installed${NC}"
