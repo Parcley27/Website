@@ -38,6 +38,19 @@ const COMMANDS = {
     'update-call-server': ['sudo', '/usr/local/bin/accessmri-update.sh'],
     'reinstall-call-server': ['sudo', '/usr/local/bin/accessmri-reinstall.sh'],
 
+    // Trading
+    'update-trading':        ['sudo', '/usr/local/bin/trading-update.sh'],
+    'restart-trading-timer': ['sudo', 'systemctl', 'restart', 'trading-session.timer'],
+    'stop-trading-timer':    ['sudo', 'systemctl', 'stop',    'trading-session.timer'],
+    'start-trading-timer':   ['sudo', 'systemctl', 'start',   'trading-session.timer'],
+    'trading-next-run':      ['systemctl', 'list-timers', '--no-pager', 'trading-session.timer'],
+    'trading-log':           ['sudo', '/usr/local/bin/trading-log.sh'],
+
+    // IB Gateway
+    'restart-gateway':       ['sudo', 'systemctl', 'restart', 'ibgateway.service'],
+    'stop-gateway':          ['sudo', 'systemctl', 'stop',    'ibgateway.service'],
+    'start-gateway':         ['sudo', 'systemctl', 'start',   'ibgateway.service'],
+
 };
 
 // POST /run { "command": "<key>" }
@@ -75,6 +88,8 @@ app.get('/status', (req, res) => {
         'git-sync',
         'terminal-backend',
         'accessmri-calls',
+        'ibgateway',
+        'trading-session.timer',
 
     ];
 
