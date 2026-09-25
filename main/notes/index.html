@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --fg: #1a1a1a;
+    --fg-dim: #666666;
+    --border: #d8d8d8;
+    --link: #1a1a1a;
+    --accent: #6fa3ee;
+    --accent-dim: #6fa3ee99;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  header.masthead {
+    font-family: var(--mono);
+    background: var(--accent);
+    color: var(--fg);
+    padding: 14px 24px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  header.masthead .brand { font-weight: 400; font-size: 13px; }
+  header.masthead a { color: var(--fg); text-decoration: none; opacity: 0.75; font-size: 13px; }
+  header.masthead a:hover { opacity: 1; text-decoration: underline; }
+  header.masthead nav { display: flex; gap: 18px; }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  h1 { font-family: var(--serif); font-size: 32px; line-height: 1.25; margin: 0 0 28px; }
+
+  a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-dim); }
+  a:hover { text-decoration-color: var(--accent); }
+
+  .dropzone {
+    font-family: var(--mono);
+    font-size: 13px;
+    border: 2px dashed var(--border);
+    background: var(--bg2);
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 32px;
+    cursor: pointer;
+    color: var(--fg-dim);
+  }
+  .dropzone.drag-over { border-color: var(--accent); color: var(--fg); background: var(--accent-dim); }
+  .dropzone input[type=file] { display: none; }
+  .dropzone .hint { font-size: 11px; margin-top: 6px; }
+  .upload-status { font-family: var(--mono); font-size: 12px; margin-bottom: 24px; min-height: 1.2em; }
+  .processing-list { list-style: none; padding: 0; margin: 8px 0 24px; font-family: var(--mono); font-size: 12px; }
+  .processing-list li { padding: 6px 0; border-bottom: 1px solid var(--border); color: var(--fg-dim); }
+  .processing-list li.error { color: #b05050; }
+
+  .class-list { list-style: none; padding: 0; margin: 0; }
+  .class-list li {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+  }
+  .class-list a { font-family: var(--mono); font-size: 18px; text-decoration: none; color: var(--fg); }
+  .class-list a:hover { color: var(--accent); }
+  .class-meta { font-family: var(--mono); font-size: 12px; color: var(--fg-dim); margin-top: 4px; }
+
+  .search-box {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .search-box:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+
+  details.quickref {
+    font-family: var(--mono);
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    background: var(--bg2);
+    padding: 14px 20px;
+    margin-bottom: 18px;
+    scroll-margin-top: 24px;
+  }
+  details.quickref[open] { padding-bottom: 18px; }
+  details.quickref summary {
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  details.quickref summary::-webkit-details-marker { display: none; }
+  details.quickref summary::before { content: "+ "; display: inline-block; width: 1em; }
+  details.quickref[open] summary::before { content: "\2212 "; }
+  details.quickref.nested {
+    border: none;
+    border-left: 2px solid var(--border);
+    background: transparent;
+    padding: 4px 0 4px 16px;
+    margin: 12px 0 0;
+  }
+  .quickref-list { font-family: var(--serif); font-size: 15px; margin: 12px 0 0; padding-left: 1.2em; }
+  .quickref-list li { margin-bottom: 10px; }
+  .quickref-list .term-name { font-family: var(--mono); font-weight: 700; }
+  .quickref-list .eq-name { font-family: var(--mono); font-weight: 700; }
+  .quickref-list .eq-expr { display: block; margin: 4px 0; }
+
+  details.lecture {
+    font-family: var(--mono);
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    background: var(--bg2);
+    padding: 14px 20px;
+    margin-bottom: 18px;
+    scroll-margin-top: 24px;
+  }
+  details.lecture[open] { padding-bottom: 20px; }
+  details.lecture summary {
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    font-size: 14px;
+  }
+  details.lecture summary::-webkit-details-marker { display: none; }
+  details.lecture summary::before { content: "+ "; display: inline-block; width: 1em; color: var(--accent); }
+  details.lecture[open] summary::before { content: "\2212 "; }
+
+  .lecture-body { font-family: var(--serif); font-size: 16px; margin-top: 16px; }
+  .lecture-body h1, .lecture-body h2, .lecture-body h3 { font-family: var(--mono); font-size: 15px; margin: 20px 0 10px; }
+  .lecture-body ul, .lecture-body ol { padding-left: 1.3em; }
+  .lecture-body li { margin-bottom: 4px; }
+  .lecture-links { font-family: var(--mono); font-size: 12px; margin-top: 14px; }
+  .lecture-links a { margin-right: 16px; }
+  .lecture-body mark, summary mark { background: var(--accent-dim); color: var(--fg); padding: 0 2px; }
+
+  .status-line { font-family: var(--mono); font-size: 13px; color: var(--fg-dim); }
+
+  @media (max-width: 600px) {
+    .wrap { padding: 32px 16px 60px; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <span class="brand" id="brand">pierceoxley.ca/notes</span>
+  <nav id="nav">
+    <a href="https://pierceoxley.ca">home</a>
+  </nav>
+</header>
+
+<div class="wrap" id="wrap">
+  <p class="status-line">loading...</p>
+</div>
+
+<script>
+const API = "/notes-api";
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+const WEEKDAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function formatDate(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return `${WEEKDAYS[dt.getDay()]}, ${MONTHS[m - 1]} ${d}, ${y}`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function dropzoneHtml() {
+  return `
+    <div class="dropzone" id="dropzone">
+      <div>drag and drop, or browse for an audio file</div>
+      <input type="file" id="fileInput" accept="audio/*">
+    </div>
+    <p class="upload-status" id="uploadStatus"></p>`;
+}
+
+function wireDropzone() {
+  const zone = document.getElementById("dropzone");
+  const input = document.getElementById("fileInput");
+  const status = document.getElementById("uploadStatus");
+
+  async function uploadFile(file) {
+    status.textContent = `uploading ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)...`;
+    const form = new FormData();
+    form.append("audio", file);
+    try {
+      const res = await fetch(`${API}/upload`, { method: "POST", body: form });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.error || "upload failed");
+      status.textContent = `uploaded ${file.name} — it'll show up on the class page once processed.`;
+    } catch (e) {
+      status.textContent = `upload failed: ${e.message}`;
+    }
+  }
+
+  zone.addEventListener("click", () => input.click());
+  input.addEventListener("change", () => {
+    if (input.files[0]) uploadFile(input.files[0]);
+  });
+  zone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    zone.classList.add("drag-over");
+  });
+  zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.classList.remove("drag-over");
+    if (e.dataTransfer.files[0]) uploadFile(e.dataTransfer.files[0]);
+  });
+}
+
+const STAGE_LABELS = {
+  queued: "queued",
+  transcribing: "transcribing audio…",
+  transcribed: "transcript ready, waiting to be reviewed…",
+  correcting: "reviewing transcript for errors…",
+  generating_notes: "writing notes…",
+  error: "failed",
+};
+
+function renderProcessingList(items) {
+  const box = document.getElementById("processingBox");
+  if (!box) return;
+  if (!items || items.length === 0) {
+    box.innerHTML = "";
+    return;
+  }
+  box.innerHTML =
+    `<p class="status-line">processing:</p><ul class="processing-list">` +
+    items
+      .map((it) => {
+        const label = STAGE_LABELS[it.stage] || it.stage;
+        const errClass = it.stage === "error" ? ' class="error"' : "";
+        const detail = it.stage === "error" && it.message ? ` — ${escapeHtml(it.message)}` : "";
+        return `<li${errClass}>${escapeHtml(it.originalName || it.baseName)}: ${label}${detail}</li>`;
+      })
+      .join("") +
+    `</ul>`;
+}
+
+async function pollProcessing() {
+  try {
+    const res = await fetch(`${API}/status`);
+    renderProcessingList(await res.json());
+  } catch {
+    // transient network hiccup, next poll will retry
+  }
+  setTimeout(pollProcessing, 4000);
+}
+
+async function renderIndex() {
+  const wrap = document.getElementById("wrap");
+  wrap.innerHTML = `<h1>Notes</h1>${dropzoneHtml()}<div id="processingBox"></div><p class="status-line">loading classes...</p>`;
+  wireDropzone();
+  pollProcessing();
+  const res = await fetch(`${API}/classes`);
+  const classes = await res.json();
+  const processingBoxHtml = `<div id="processingBox"></div>`;
+  if (classes.length === 0) {
+    wrap.innerHTML = `<h1>Notes</h1>${dropzoneHtml()}${processingBoxHtml}<p class="status-line">No classes yet.</p>`;
+    wireDropzone();
+    return;
+  }
+  const items = classes
+    .map(
+      (c) => `
+    <li>
+      <a href="/notes/${c.slug}/">${escapeHtml(c.displayName)}</a>
+      <div class="class-meta">${c.lectureCount} lecture${c.lectureCount === 1 ? "" : "s"}${c.latestDate ? " · last: " + formatDate(c.latestDate) : ""}</div>
+    </li>`
+    )
+    .join("");
+  wrap.innerHTML = `<h1>Notes</h1>${dropzoneHtml()}${processingBoxHtml}<ul class="class-list">${items}</ul>`;
+  wireDropzone();
+}
+
+function renderEquation(expr) {
+  try {
+    return katex.renderToString(expr, { throwOnError: false });
+  } catch {
+    return escapeHtml(expr);
+  }
+}
+
+function quickrefHtml(data) {
+  const terms = data.keyTerms || [];
+  const equations = data.keyEquations || [];
+  if (terms.length === 0 && equations.length === 0) return "";
+
+  const termsHtml = terms.length
+    ? `<details class="quickref nested">
+        <summary>Terms (${terms.length})</summary>
+        <ul class="quickref-list">
+          ${terms.map((t) => `<li><span class="term-name">${escapeHtml(t.term)}</span> — ${escapeHtml(t.definition)}</li>`).join("")}
+        </ul>
+      </details>`
+    : "";
+  const equationsHtml = equations.length
+    ? `<details class="quickref nested">
+        <summary>Equations (${equations.length})</summary>
+        <ul class="quickref-list">
+          ${equations
+            .map(
+              (e) => `<li><span class="eq-name">${escapeHtml(e.name)}</span><span class="eq-expr">${renderEquation(e.expression)}</span>${e.description ? escapeHtml(e.description) : ""}</li>`
+            )
+            .join("")}
+        </ul>
+      </details>`
+    : "";
+
+  return `
+    <details class="quickref" open>
+      <summary>Quick Reference</summary>
+      ${termsHtml}
+      ${equationsHtml}
+    </details>`;
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  return text.replace(new RegExp(`(${escapeRegex(query)})`, "ig"), "<mark>$1</mark>");
+}
+
+// Pulls out just the lines that mention the query (plus the nearest preceding
+// heading, for context), rather than showing the whole notes body — used when
+// a search is active so matching lectures show only the relevant bit.
+function extractSnippets(markdown, query) {
+  const q = query.toLowerCase();
+  const lines = (markdown || "").split("\n");
+  const output = [];
+  let lastHeading = null;
+  let lastHeadingIncluded = false;
+  for (const line of lines) {
+    if (/^#{1,6}\s/.test(line)) {
+      lastHeading = line;
+      lastHeadingIncluded = false;
+      continue;
+    }
+    if (line.toLowerCase().includes(q)) {
+      if (lastHeading && !lastHeadingIncluded) {
+        output.push(lastHeading);
+        lastHeadingIncluded = true;
+      }
+      output.push(line);
+    }
+  }
+  return output.join("\n");
+}
+
+function lectureHtml(l, query) {
+  const bodyMarkdown = query ? extractSnippets(l.notesMarkdown, query) : l.notesMarkdown;
+  let notesHtml = marked.parse(bodyMarkdown || "*No notes generated.*");
+  if (query) notesHtml = highlight(notesHtml, query);
+  const topicHtml = query ? highlight(escapeHtml(l.topic), query) : escapeHtml(l.topic);
+  return `
+    <details class="lecture"${query ? " open" : ""}>
+      <summary>${formatDate(l.date)} — ${topicHtml}</summary>
+      <div class="lecture-body">${notesHtml}</div>
+      <div class="lecture-links">
+        <a href="${API}/media/transcripts/${encodeURIComponent(l.transcriptFile)}">transcript</a>
+        <a href="${API}/media/audio/${encodeURIComponent(l.audioFile)}">recording</a>
+        ${query ? '<a href="#" class="show-full">show full notes</a>' : ""}
+      </div>
+    </details>`;
+}
+
+async function renderClass(slug) {
+  const wrap = document.getElementById("wrap");
+  wrap.innerHTML = `<p class="status-line">loading...</p>`;
+  const res = await fetch(`${API}/classes/${encodeURIComponent(slug)}`);
+  if (!res.ok) {
+    wrap.innerHTML = `<h1>Not found</h1><p><a href="/notes/">back to classes</a></p>`;
+    return;
+  }
+  const data = await res.json();
+  document.getElementById("nav").innerHTML = `<a href="https://pierceoxley.ca">home</a><a href="/notes/">all classes</a>`;
+
+  const lectures = [...data.lectures].sort((a, b) => b.date.localeCompare(a.date));
+
+  wrap.innerHTML = `
+    <h1>${escapeHtml(data.displayName)}</h1>
+    ${quickrefHtml(data)}
+    <input type="text" class="search-box" id="lectureSearch" placeholder="search this course's lectures...">
+    <div id="lectureList"></div>`;
+
+  const listEl = document.getElementById("lectureList");
+  function renderList(filtered, query) {
+    listEl.innerHTML = filtered.length
+      ? filtered.map((l) => lectureHtml(l, query)).join("")
+      : '<p class="status-line">No matching lectures.</p>';
+  }
+  renderList(lectures, "");
+
+  document.getElementById("lectureSearch").addEventListener("input", (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    if (!q) return renderList(lectures, "");
+    renderList(
+      lectures.filter((l) => `${l.topic} ${l.notesMarkdown || ""}`.toLowerCase().includes(q)),
+      q
+    );
+  });
+
+  // "show full notes" swaps just that one lecture's snippet view back to the full body,
+  // without clearing the search box or re-collapsing the other matched lectures.
+  listEl.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("show-full")) return;
+    e.preventDefault();
+    const details = e.target.closest("details.lecture");
+    const summaryText = details.querySelector("summary").textContent;
+    const l = lectures.find((lec) => summaryText.includes(lec.topic));
+    if (!l) return;
+    const fresh = document.createElement("div");
+    fresh.innerHTML = lectureHtml(l, "");
+    fresh.firstElementChild.open = true;
+    details.replaceWith(fresh.firstElementChild);
+  });
+}
+
+function route() {
+  const parts = window.location.pathname.replace(/^\/notes\/?/, "").split("/").filter(Boolean);
+  if (parts.length === 0) {
+    renderIndex();
+  } else {
+    renderClass(parts[0]);
+  }
+}
+
+route();
+</script>
+</body>
+</html>

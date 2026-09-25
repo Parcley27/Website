@@ -1,0 +1,15 @@
+{
+  "name": "notes-backend",
+  "version": "1.0.0",
+  "description": "Backend for pierceoxley.ca/notes (lecture recording -> transcript -> notes pipeline)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "multer": "^2.0.0"
+  }
+}

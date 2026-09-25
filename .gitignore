@@ -7,3 +7,7 @@ termial/backend/node_modules/
 /.claude/
 
 .DS_Store
+/main/ig/
+/ig-backend/
+/archive-backend/
+/main/archive/
