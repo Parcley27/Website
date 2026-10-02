@@ -155,6 +155,11 @@
   .lecture-body h1, .lecture-body h2, .lecture-body h3 { font-family: var(--mono); font-size: 15px; margin: 20px 0 10px; }
   .lecture-body ul, .lecture-body ol { padding-left: 1.3em; }
   .lecture-body li { margin-bottom: 4px; }
+  .lecture-body table { border-collapse: collapse; margin: 12px 0; font-size: 14px; display: block; overflow-x: auto; }
+  .lecture-body th, .lecture-body td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; vertical-align: top; }
+  .lecture-body th { font-family: var(--mono); font-size: 12px; }
+  .lecture-body .katex-display { margin: 8px 0; overflow-x: auto; overflow-y: hidden; }
+  .section-label { font-family: var(--mono); font-size: 12px; color: var(--fg-dim); margin: 24px 0 8px; text-transform: lowercase; }
   .lecture-links { font-family: var(--mono); font-size: 12px; margin-top: 14px; }
   .lecture-links a { margin-right: 16px; }
   .lecture-body mark, summary mark { background: var(--accent-dim); color: var(--fg); padding: 0 2px; }
@@ -304,9 +309,9 @@ async function renderIndex() {
   wireDropzone();
 }
 
-function renderEquation(expr) {
+function renderEquation(expr, display) {
   try {
-    return katex.renderToString(expr, { throwOnError: false });
+    return katex.renderToString(expr, { throwOnError: false, displayMode: !!display });
   } catch {
     return escapeHtml(expr);
   }
@@ -346,13 +351,29 @@ function quickrefHtml(data) {
     </details>`;
 }
 
+function renderMarkdownWithMath(md) {
+  const math = [];
+  const stash = (tex, display) => {
+    math.push(renderEquation(tex, display));
+    return `@@MATH${math.length - 1}@@`;
+  };
+  const withPlaceholders = (md || "")
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => stash(tex, true))
+    .replace(/\$([^\s$](?:[^$\n]*?[^\s$])?)\$/g, (_, tex) => stash(tex, false));
+  return marked.parse(withPlaceholders).replace(/@@MATH(\d+)@@/g, (_, i) => math[Number(i)]);
+}
+
 function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function highlight(text, query) {
-  if (!query) return text;
-  return text.replace(new RegExp(`(${escapeRegex(query)})`, "ig"), "<mark>$1</mark>");
+function highlight(html, query) {
+  if (!query) return html;
+  const re = new RegExp(`(${escapeRegex(query)})`, "ig");
+  return html
+    .split(/(<[^>]+>|&[#\w]+;)/)
+    .map((part) => (part.startsWith("<") || part.startsWith("&") ? part : part.replace(re, "<mark>$1</mark>")))
+    .join("");
 }
 
 // Pulls out just the lines that mention the query (plus the nearest preceding
@@ -398,6 +419,19 @@ function lectureHtml(l, query) {
     </details>`;
 }
 
+function guideHtml(g, query) {
+  const body = query ? extractSnippets(g.notesMarkdown, query) : g.notesMarkdown;
+  let html = renderMarkdownWithMath(body || "");
+  if (query) html = highlight(html, query);
+  const titleHtml = query ? highlight(escapeHtml(g.title), query) : escapeHtml(g.title);
+  return `
+    <details class="lecture guide" data-guide="${escapeHtml(g.id)}"${query ? " open" : ""}>
+      <summary>${titleHtml}</summary>
+      <div class="lecture-body">${html}</div>
+      ${query ? '<div class="lecture-links"><a href="#" class="show-full-guide">show full guide</a></div>' : ""}
+    </details>`;
+}
+
 async function renderClass(slug) {
   const wrap = document.getElementById("wrap");
   wrap.innerHTML = `<p class="status-line">loading...</p>`;
@@ -410,28 +444,50 @@ async function renderClass(slug) {
   document.getElementById("nav").innerHTML = `<a href="https://pierceoxley.ca">home</a><a href="/notes/">all classes</a>`;
 
   const lectures = [...data.lectures].sort((a, b) => b.date.localeCompare(a.date));
+  const guides = data.studyGuides || [];
 
   wrap.innerHTML = `
     <h1>${escapeHtml(data.displayName)}</h1>
     ${quickrefHtml(data)}
-    <input type="text" class="search-box" id="lectureSearch" placeholder="search this course's lectures...">
+    <input type="text" class="search-box" id="lectureSearch" placeholder="search this course's notes...">
+    <div id="guideList"></div>
     <div id="lectureList"></div>`;
 
+  const guideEl = document.getElementById("guideList");
   const listEl = document.getElementById("lectureList");
-  function renderList(filtered, query) {
+  function renderList(filtered, query, filteredGuides) {
+    guideEl.innerHTML = filteredGuides.length
+      ? `<p class="section-label">study guides</p>${filteredGuides.map((g) => guideHtml(g, query)).join("")}`
+      : "";
+    const label = filteredGuides.length ? '<p class="section-label">lectures</p>' : "";
     listEl.innerHTML = filtered.length
-      ? filtered.map((l) => lectureHtml(l, query)).join("")
-      : '<p class="status-line">No matching lectures.</p>';
+      ? label + filtered.map((l) => lectureHtml(l, query)).join("")
+      : filteredGuides.length
+        ? ""
+        : '<p class="status-line">No matching lectures.</p>';
   }
-  renderList(lectures, "");
+  renderList(lectures, "", guides);
 
   document.getElementById("lectureSearch").addEventListener("input", (e) => {
     const q = e.target.value.trim().toLowerCase();
-    if (!q) return renderList(lectures, "");
+    if (!q) return renderList(lectures, "", guides);
     renderList(
       lectures.filter((l) => `${l.topic} ${l.notesMarkdown || ""}`.toLowerCase().includes(q)),
-      q
+      q,
+      guides.filter((g) => `${g.title} ${g.notesMarkdown || ""}`.toLowerCase().includes(q))
     );
+  });
+
+  guideEl.addEventListener("click", (e) => {
+    if (!e.target.classList.contains("show-full-guide")) return;
+    e.preventDefault();
+    const details = e.target.closest("details.guide");
+    const g = guides.find((x) => x.id === details.dataset.guide);
+    if (!g) return;
+    const fresh = document.createElement("div");
+    fresh.innerHTML = guideHtml(g, "");
+    fresh.firstElementChild.open = true;
+    details.replaceWith(fresh.firstElementChild);
   });
 
   // "show full notes" swaps just that one lecture's snippet view back to the full body,
