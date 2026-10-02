@@ -30,9 +30,26 @@ else
     echo -e "${YELLOW}No existing main site to backup${NC}"
 fi
 echo -e "${YELLOW}Promoting beta to main site...${NC}"
-rsync -av --delete "$BETA_DIR/" "$MAIN_DIR/"
-chown -R www-data:www-data "$MAIN_DIR"
-chmod -R 755 "$MAIN_DIR"
+# These paths never exist on beta (gitignored: API keys, scraped/uploaded
+# runtime data, deps) but are live on main — excluded so --delete doesn't
+# wipe them out just because beta's checkout doesn't have them.
+rsync -av --delete \
+    --exclude='ig-backend/' \
+    --exclude='archive-backend/' \
+    --exclude='notes-backend/data/' \
+    --exclude='notes-backend/media/' \
+    --exclude='notes-backend/incoming/' \
+    --exclude='notes-backend/node_modules/' \
+    --exclude='notes-backend/.env' \
+    --exclude='notes-backend/.npm/' \
+    --exclude='main/ig/' \
+    --exclude='main/archive/' \
+    "$BETA_DIR/" "$MAIN_DIR/"
+# Backend dirs run as their own service users (igstudy, archive, notes) and
+# hold secrets like notes-backend/.env (0600) — a blanket chown/chmod here
+# locks the services out of their own data, so skip them.
+find "$MAIN_DIR" \( -path "$MAIN_DIR/ig-backend" -o -path "$MAIN_DIR/archive-backend" -o -path "$MAIN_DIR/notes-backend" \) -prune \
+    -o -exec chown www-data:www-data {} + -exec chmod 755 {} +
 echo -e "${YELLOW}Syncing terminal frontend...${NC}"
 rsync -av --delete --exclude='backend/' "$BETA_DIR/terminal/" "$TERMINAL_DIR/"
 chown -R www-data:www-data "$TERMINAL_DIR"
