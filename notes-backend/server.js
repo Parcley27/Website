@@ -4,6 +4,7 @@ const path = require("path");
 const multer = require("multer");
 const { execFile } = require("child_process");
 const { writeStatus, readAllStatuses } = require("./status");
+const { ask, explain } = require("./ask");
 
 const DATA_DIR = path.join(__dirname, "data", "classes");
 const STATUS_DATA_DIR = path.join(__dirname, "data");
@@ -73,6 +74,10 @@ app.get("/classes/:slug", (req, res) => {
   res.json(JSON.parse(fs.readFileSync(file, "utf8")));
 });
 
+// Search-bar questions and highlight-to-explain on the class pages (see ask.js).
+app.post("/ask", express.json({ limit: "100kb" }), ask);
+app.post("/explain", express.json({ limit: "100kb" }), explain);
+
 // Runs the full ingest -> correct -> notesgen -> finalize pipeline over
 // whatever's sitting in incoming/, plus stuck-file alerting. Called by cron's
 // push-based check (only when its cheap shell gate finds a file present), so
@@ -103,7 +108,7 @@ app.post("/process", (req, res) => {
   });
 });
 
-const PORT = 4032;
+const PORT = process.env.PORT || 4032;
 app.listen(PORT, "127.0.0.1", () => {
   console.log(`notes backend listening on 127.0.0.1:${PORT}`);
 });
