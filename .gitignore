@@ -19,3 +19,10 @@ termial/backend/node_modules/
 !/archive-backend/classifier/package*.json
 /archive-backend/classifier/*.jsonl
 /archive-backend/classifier/*.log
+# Board: code is tracked; users, events, iCloud feeds and the signing key are not.
+board/backend/node_modules/
+board/backend/feeds.json
+board/backend/users.json
+board/backend/data/
+board/backend/*.log
+board/backend/*.err

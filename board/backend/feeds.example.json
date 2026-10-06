@@ -1,0 +1,9 @@
+{
+  "tz": "America/Vancouver",
+  "people": {
+    "pierce": "webcal://pXX-caldav.icloud.com/published/2/REPLACE_WITH_PUBLIC_CALENDAR_LINK",
+    "alex":   "webcal://pXX-caldav.icloud.com/published/2/REPLACE_WITH_PUBLIC_CALENDAR_LINK"
+  },
+  "holidays": "https://calendars.icloud.com/holidays/ca_en.ics",
+  "classPattern": "\\b[A-Z]{2,4}[ _-]?\\d{3}[A-Z]?\\b"
+}

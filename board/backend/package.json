@@ -1,0 +1,14 @@
+{
+  "name": "board-backend",
+  "version": "1.0.0",
+  "description": "Calendar proxy for the house board (board.pierceoxley.ca)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "node-ical": "^0.20.1",
+    "rrule": "^2.8.1"
+  }
+}
