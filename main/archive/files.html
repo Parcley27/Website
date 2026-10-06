@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Archive</title>
+<style>
+  /* Same palette as the photo timeline and pierceoxley.ca/flicker. */
+  html[data-theme="light"] {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #ffffff;
+    --fg: #1a1a1a;
+    --fg-dim: #666666;
+    --border: #d8d8d8;
+  }
+  html[data-theme="dark"] {
+    --bg: #121417;
+    --bg2: #1b1e23;
+    --bg3: #0c0e10;
+    --fg: #e8e8e8;
+    --fg-dim: #9a9a9a;
+    --border: #30353d;
+  }
+  :root { --accent: #6fa3ee; --ink: #1a1a1a; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+  }
+  #layout { display: flex; min-height: 100vh; }
+
+  #sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 16px 12px;
+    overflow-y: auto;
+    max-height: 100vh;
+    position: sticky;
+    top: 0;
+  }
+  #sidebar h1 {
+    margin: -16px -12px 14px;
+    padding: 12px;
+    background: var(--accent);
+    color: var(--ink);
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+  }
+  #searchBox {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+    margin-bottom: 12px;
+  }
+  #themeToggle {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 8px;
+    margin-bottom: 14px;
+    cursor: pointer;
+  }
+  #themeToggle:hover, #photosViewBtn:hover { border-color: var(--fg-dim); }
+  #photosViewBtn {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 8px;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+
+  .treeNode { user-select: none; }
+  .treeRow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 2px;
+  }
+  .treeRow:hover { background: var(--bg3); }
+  .treeRow.active { background: var(--accent); color: var(--ink); }
+  .treeToggle { width: 12px; display: inline-block; color: var(--fg-dim); flex-shrink: 0; }
+  .treeChildren { padding-left: 14px; display: none; }
+  .treeChildren.open { display: block; }
+
+  #main { flex: 1; min-width: 0; }
+
+  header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  #breadcrumb {
+    color: var(--fg-dim);
+    font-size: 13px;
+    word-break: break-all;
+  }
+  #breadcrumb a { color: var(--fg-dim); text-decoration: none; }
+  #breadcrumb a:hover { color: var(--fg); text-decoration: underline; }
+  #breadcrumb .sep { margin: 0 4px; color: #777; }
+
+  #toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex-wrap: wrap;
+  }
+  #toolbar button, #toolbar select {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #toolbar button:hover:not(:disabled) { border-color: var(--fg); }
+  #toolbar button:disabled { color: var(--fg-dim); cursor: default; }
+  #selCount { color: var(--fg-dim); font-size: 13px; margin-left: auto; }
+
+  main { padding: 20px 24px 60px; }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .tile {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .tile:hover { border-color: var(--fg-dim); }
+  .thumbwrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg3);
+    overflow: hidden;
+  }
+  .thumbwrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumbwrap .glyph { font-size: 34px; color: var(--fg-dim); }
+  .label {
+    padding: 6px 8px;
+    font-size: 12px;
+    color: var(--fg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-top: 1px solid var(--border);
+  }
+  .meta {
+    padding: 0 8px 6px;
+    font-size: 11px;
+    color: var(--fg-dim);
+  }
+  .meta .p { display: block; opacity: 0.8; }
+  .checkbox {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 18px;
+    height: 18px;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid var(--fg-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .checkbox.checked { background: var(--fg); border-color: var(--fg); }
+  .checkbox.checked::after { content: "x"; color: var(--bg); font-weight: bold; font-size: 12px; }
+  .tile.folder .label { font-weight: 600; }
+
+  #empty { color: var(--fg-dim); padding: 40px 0; text-align: center; }
+  #searchInfo { color: var(--fg-dim); padding: 0 24px 10px; font-size: 12px; }
+
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 20;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img, #lightbox video {
+    max-width: 92vw;
+    max-height: 78vh;
+    object-fit: contain;
+  }
+  #lightbox .lbBar {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 14px;
+    color: #ccc;
+    font-size: 13px;
+  }
+  #lightbox button, #lightbox a.dl {
+    background: transparent;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 6px 12px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 13px;
+  }
+  #lightbox button:hover, #lightbox a.dl:hover { border-color: #fff; }
+</style>
+</head>
+<body>
+
+<div id="layout">
+  <div id="sidebar">
+    <h1>ARCHIVE</h1>
+    <button id="photosViewBtn" onclick="location.href='/archive/'">&larr; back to photo timeline</button>
+    <input id="searchBox" type="text" placeholder="search filenames...">
+    <button id="themeToggle">toggle light / dark</button>
+    <div id="tree"></div>
+  </div>
+
+  <div id="main">
+    <header>
+      <div id="breadcrumb"></div>
+    </header>
+
+    <div id="toolbar">
+      <button id="selectAllBtn">select all</button>
+      <button id="clearSelBtn">clear</button>
+      <button id="downloadBtn" disabled>download selected (.zip)</button>
+      <select id="sortSelect">
+        <option value="name-asc">name (a-z)</option>
+        <option value="name-desc">name (z-a)</option>
+        <option value="date-desc">date (newest)</option>
+        <option value="date-asc">date (oldest)</option>
+      </select>
+      <span id="selCount"></span>
+    </div>
+
+    <div id="searchInfo" style="display:none"></div>
+
+    <main>
+      <div id="grid"></div>
+      <div id="empty" style="display:none">empty folder</div>
+    </main>
+  </div>
+</div>
+
+<div id="lightbox">
+  <div id="lbContent"></div>
+  <div class="lbBar">
+    <button id="lbPrev">&larr; prev</button>
+    <span id="lbName"></span>
+    <a id="lbDownload" class="dl" href="#" download>download</a>
+    <button id="lbNext">next &rarr;</button>
+    <button id="lbClose">close (esc)</button>
+  </div>
+</div>
+
+<script>
+const API = "/archive-api";
+let currentPath = new URLSearchParams(location.search).get("path") || "";
+let entries = [];
+let selected = new Set();
+let lbIndex = -1;
+let sortMode = "name-asc";
+let searchResults = null; // null = not searching; array = search mode
+
+const grid = document.getElementById("grid");
+const empty = document.getElementById("empty");
+const breadcrumb = document.getElementById("breadcrumb");
+const selCount = document.getElementById("selCount");
+const downloadBtn = document.getElementById("downloadBtn");
+const searchInfo = document.getElementById("searchInfo");
+const treeEl = document.getElementById("tree");
+
+// ---------- theme ----------
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("archive-theme-v2", t);
+}
+applyTheme(localStorage.getItem("archive-theme-v2") || "light");
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  applyTheme(cur === "dark" ? "light" : "dark");
+});
+
+// ---------- helpers ----------
+function fmtSize(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  const units = ["KB", "MB", "GB", "TB"];
+  let v = bytes, i = -1;
+  do { v /= 1024; i++; } while (v >= 1024 && i < units.length - 1);
+  return v.toFixed(1) + " " + units[i];
+}
+function fmtDate(ms) {
+  const d = new Date(ms);
+  return d.toISOString().slice(0, 10);
+}
+function glyphFor(ext) {
+  const map = { ".mp4": "▶", ".mov": "▶", ".avi": "▶", ".mkv": "▶",
+    ".pdf": "≡", ".doc": "≡", ".docx": "≡", ".txt": "≡",
+    ".zip": "▦", ".rar": "▦" };
+  return map[ext] || "□";
+}
+function relPath(name) {
+  return currentPath ? currentPath + "/" + name : name;
+}
+
+// ---------- navigation ----------
+function navigate(p) {
+  currentPath = p;
+  searchResults = null;
+  document.getElementById("searchBox").value = "";
+  selected.clear();
+  const url = new URL(location.href);
+  if (p) url.searchParams.set("path", p); else url.searchParams.delete("path");
+  history.pushState({ path: p }, "", url);
+  load();
+  highlightTreePath(p);
+}
+
+window.addEventListener("popstate", (e) => {
+  currentPath = (e.state && e.state.path) || "";
+  searchResults = null;
+  selected.clear();
+  load();
+  highlightTreePath(currentPath);
+});
+
+function renderBreadcrumb() {
+  const parts = currentPath.split("/").filter(Boolean);
+  let acc = "";
+  const links = [`<a href="#" data-p="">archive</a>`];
+  for (const part of parts) {
+    acc = acc ? acc + "/" + part : part;
+    links.push(`<a href="#" data-p="${acc}">${part}</a>`);
+  }
+  breadcrumb.innerHTML = links.join('<span class="sep">/</span>');
+  breadcrumb.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", (e) => { e.preventDefault(); navigate(a.dataset.p); });
+  });
+}
+
+function updateToolbar() {
+  selCount.textContent = selected.size ? `${selected.size} selected` : "";
+  downloadBtn.disabled = selected.size === 0;
+}
+
+// ---------- sorting ----------
+function sortEntries(list) {
+  const [key, dir] = sortMode.split("-");
+  const arr = [...list];
+  arr.sort((a, b) => {
+    if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+    let cmp;
+    if (key === "date") cmp = a.mtime - b.mtime;
+    else cmp = a.name.localeCompare(b.name, undefined, { numeric: true });
+    return dir === "desc" ? -cmp : cmp;
+  });
+  return arr;
+}
+
+// ---------- grid rendering ----------
+function makeTile(e, rp) {
+  const tile = document.createElement("div");
+  tile.className = "tile" + (e.isDir ? " folder" : "");
+
+  const cb = document.createElement("div");
+  cb.className = "checkbox";
+  if (selected.has(rp)) cb.classList.add("checked");
+  cb.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    if (selected.has(rp)) selected.delete(rp); else selected.add(rp);
+    cb.classList.toggle("checked");
+    updateToolbar();
+  });
+  tile.appendChild(cb);
+
+  const thumbwrap = document.createElement("div");
+  thumbwrap.className = "thumbwrap";
+  if (e.isDir) {
+    thumbwrap.innerHTML = `<span class="glyph">☷</span>`;
+  } else if (e.isImage) {
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = `${API}/thumb?path=${encodeURIComponent(rp)}&size=300`;
+    thumbwrap.appendChild(img);
+  } else {
+    thumbwrap.innerHTML = `<span class="glyph">${glyphFor(e.ext)}</span>`;
+  }
+  tile.appendChild(thumbwrap);
+
+  const label = document.createElement("div");
+  label.className = "label";
+  label.textContent = e.name;
+  tile.appendChild(label);
+
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  if (searchResults) {
+    meta.innerHTML = `<span class="p">${e.path.split("/").slice(0, -1).join("/") || "/"}</span>${e.isDir ? "" : fmtSize(e.size) + " · " + fmtDate(e.mtime)}`;
+  } else if (!e.isDir) {
+    meta.textContent = fmtSize(e.size) + " · " + fmtDate(e.mtime);
+  }
+  tile.appendChild(meta);
+
+  tile.addEventListener("click", () => {
+    if (e.isDir) navigate(rp);
+    else openLightboxFor(rp, e);
+  });
+
+  return tile;
+}
+
+function renderGrid(list, dataIsSearch) {
+  grid.innerHTML = "";
+  empty.style.display = list.length ? "none" : "block";
+  for (const e of list) {
+    const rp = dataIsSearch ? e.path : relPath(e.name);
+    grid.appendChild(makeTile(e, rp));
+  }
+}
+
+async function load() {
+  searchInfo.style.display = "none";
+  renderBreadcrumb();
+  const res = await fetch(`${API}/list?path=${encodeURIComponent(currentPath)}`);
+  const data = await res.json();
+  if (data.error) { grid.innerHTML = ""; empty.style.display = "block"; empty.textContent = data.error; return; }
+  entries = data.entries;
+  updateToolbar();
+  renderGrid(sortEntries(entries), false);
+}
+
+document.getElementById("sortSelect").addEventListener("change", (e) => {
+  sortMode = e.target.value;
+  if (searchResults) renderGrid(sortEntries(searchResults), true);
+  else renderGrid(sortEntries(entries), false);
+});
+
+document.getElementById("selectAllBtn").addEventListener("click", () => {
+  const list = searchResults || entries;
+  for (const e of list) selected.add(searchResults ? e.path : relPath(e.name));
+  updateToolbar();
+  renderGrid(sortEntries(list), !!searchResults);
+});
+document.getElementById("clearSelBtn").addEventListener("click", () => {
+  selected.clear();
+  updateToolbar();
+  renderGrid(sortEntries(searchResults || entries), !!searchResults);
+});
+downloadBtn.addEventListener("click", async () => {
+  const paths = [...selected];
+  const res = await fetch(`${API}/zip`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ paths }),
+  });
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "archive-selection.zip";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+// ---------- search ----------
+let searchTimer = null;
+document.getElementById("searchBox").addEventListener("input", (e) => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  if (!q) { searchResults = null; searchInfo.style.display = "none"; load(); return; }
+  searchTimer = setTimeout(() => runSearch(q), 350);
+});
+
+async function runSearch(q) {
+  breadcrumb.innerHTML = `search: "${q}"`;
+  const res = await fetch(`${API}/search?q=${encodeURIComponent(q)}&path=${encodeURIComponent(currentPath)}`);
+  const data = await res.json();
+  searchResults = data.results || [];
+  selected.clear();
+  updateToolbar();
+  searchInfo.style.display = "block";
+  searchInfo.textContent = `${searchResults.length} result(s)${data.truncated ? " (truncated — refine your search)" : ""}`;
+  renderGrid(sortEntries(searchResults), true);
+}
+
+// ---------- sidebar tree ----------
+async function fetchDirs(p) {
+  const res = await fetch(`${API}/list?path=${encodeURIComponent(p)}`);
+  const data = await res.json();
+  return (data.entries || []).filter((e) => e.isDir);
+}
+
+function makeTreeNode(name, fullPath, depth) {
+  const node = document.createElement("div");
+  node.className = "treeNode";
+  node.dataset.path = fullPath;
+
+  const row = document.createElement("div");
+  row.className = "treeRow";
+  row.style.paddingLeft = (depth * 10) + "px";
+
+  const toggle = document.createElement("span");
+  toggle.className = "treeToggle";
+  toggle.textContent = "+";
+  row.appendChild(toggle);
+
+  const label = document.createElement("span");
+  label.textContent = name;
+  row.appendChild(label);
+
+  const childrenEl = document.createElement("div");
+  childrenEl.className = "treeChildren";
+
+  let loaded = false;
+  async function toggleOpen() {
+    const isOpen = childrenEl.classList.contains("open");
+    if (isOpen) {
+      childrenEl.classList.remove("open");
+      toggle.textContent = "+";
+      return;
+    }
+    if (!loaded) {
+      const dirs = await fetchDirs(fullPath);
+      for (const d of dirs) {
+        const childPath = fullPath ? fullPath + "/" + d.name : d.name;
+        childrenEl.appendChild(makeTreeNode(d.name, childPath, depth + 1));
+      }
+      loaded = true;
+    }
+    childrenEl.classList.add("open");
+    toggle.textContent = "-";
+  }
+
+  toggle.addEventListener("click", (e) => { e.stopPropagation(); toggleOpen(); });
+  row.addEventListener("click", () => { navigate(fullPath); if (!childrenEl.classList.contains("open")) toggleOpen(); });
+
+  node.appendChild(row);
+  node.appendChild(childrenEl);
+  node._toggleOpen = toggleOpen;
+  node._row = row;
+  return node;
+}
+
+function highlightTreePath(p) {
+  treeEl.querySelectorAll(".treeRow.active").forEach((r) => r.classList.remove("active"));
+  if (!p) return;
+  const node = treeEl.querySelector(`.treeNode[data-path="${CSS.escape(p)}"]`);
+  if (node && node._row) node._row.classList.add("active");
+}
+
+async function initTree() {
+  const dirs = await fetchDirs("");
+  for (const d of dirs) {
+    treeEl.appendChild(makeTreeNode(d.name, d.name, 0));
+  }
+  highlightTreePath(currentPath);
+}
+
+// ---------- lightbox ----------
+const lightbox = document.getElementById("lightbox");
+const lbContent = document.getElementById("lbContent");
+const lbName = document.getElementById("lbName");
+const lbDownload = document.getElementById("lbDownload");
+let lbList = [];
+
+function openLightboxFor(rp, e) {
+  const source = searchResults || entries;
+  const imgs = source.filter((x) => !x.isDir && x.isImage);
+  lbList = imgs.map((x) => (searchResults ? x.path : relPath(x.name)));
+  const namesForLookup = imgs.map((x) => (searchResults ? x.path : relPath(x.name)));
+  const idx = namesForLookup.indexOf(rp);
+  if (idx === -1) {
+    window.open(`${API}/file?path=${encodeURIComponent(rp)}&download=1`, "_blank");
+    return;
+  }
+  lbIndex = idx;
+  showLbIndex();
+  lightbox.classList.add("open");
+}
+
+function showLbIndex() {
+  const rp = lbList[lbIndex];
+  if (!rp) return;
+  lbContent.innerHTML = `<img src="${API}/file?path=${encodeURIComponent(rp)}">`;
+  lbName.textContent = rp.split("/").pop();
+  lbDownload.href = `${API}/file?path=${encodeURIComponent(rp)}&download=1`;
+}
+
+document.getElementById("lbPrev").addEventListener("click", () => {
+  lbIndex = (lbIndex - 1 + lbList.length) % lbList.length;
+  showLbIndex();
+});
+document.getElementById("lbNext").addEventListener("click", () => {
+  lbIndex = (lbIndex + 1) % lbList.length;
+  showLbIndex();
+});
+document.getElementById("lbClose").addEventListener("click", () => lightbox.classList.remove("open"));
+lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.classList.remove("open"); });
+document.addEventListener("keydown", (e) => {
+  if (!lightbox.classList.contains("open")) return;
+  if (e.key === "Escape") lightbox.classList.remove("open");
+  if (e.key === "ArrowLeft") document.getElementById("lbPrev").click();
+  if (e.key === "ArrowRight") document.getElementById("lbNext").click();
+});
+
+load();
+initTree();
+</script>
+</body>
+</html>

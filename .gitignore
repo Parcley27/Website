@@ -9,5 +9,13 @@ termial/backend/node_modules/
 .DS_Store
 /main/ig/
 /ig-backend/
-/archive-backend/
-/main/archive/
+# Archive: code is tracked; the photo index, thumbnails, settings and models are not.
+/archive-backend/data/
+/archive-backend/.thumb-cache/
+/archive-backend/node_modules/
+/archive-backend/classifier/node_modules/
+/archive-backend/classifier/models/
+/archive-backend/classifier/*.json
+!/archive-backend/classifier/package*.json
+/archive-backend/classifier/*.jsonl
+/archive-backend/classifier/*.log

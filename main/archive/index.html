@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Archive</title>
+<style>
+  /* Same palette as pierceoxley.ca/flicker: white and light grey with a sky-blue accent. */
+  html[data-theme="light"] {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #ebebeb;
+    --fg: #1a1a1a;
+    --fg-dim: #666666;
+    --border: #d8d8d8;
+  }
+  html[data-theme="dark"] {
+    --bg: #121417;
+    --bg2: #1b1e23;
+    --bg3: #0c0e10;
+    --fg: #e8e8e8;
+    --fg-dim: #9a9a9a;
+    --border: #30353d;
+  }
+  :root {
+    --accent: #6fa3ee;
+    --accent-dim: #6fa3ee99;
+    --ink: #1a1a1a; /* text on the accent colour, in both themes */
+    --sel: var(--accent);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    overflow: hidden;
+  }
+  button {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) { border-color: var(--fg); }
+  button:disabled { color: var(--fg-dim); cursor: default; }
+  button.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .spinner {
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  a { color: inherit; }
+
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--accent);
+    color: var(--ink);
+    flex-wrap: wrap;
+  }
+  #topbar h1 { margin: 0 8px 0 0; font-size: 18px; letter-spacing: 0.08em; }
+  #topbar button { background: transparent; color: var(--ink); border-color: rgba(26,26,26,0.35); }
+  #topbar button:hover:not(:disabled) { border-color: var(--ink); background: rgba(255,255,255,0.18); }
+  #topbar button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .views { display: flex; }
+  .views button { border-right-width: 0; }
+  .views button:last-child { border-right-width: 1px; }
+  #summary { color: var(--ink); opacity: 0.75; font-size: 12px; }
+  .spacer { flex: 1; }
+  #selBar { display: none; align-items: center; gap: 8px; }
+  #selBar.show { display: flex; }
+  #selCount { font-size: 13px; }
+
+  #body { flex: 1; display: flex; min-height: 0; }
+
+  /* Folders panel; collapses to a thin rail like the year rail on the right. */
+  #sidebar {
+    width: 290px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  #foldersBar {
+    flex-shrink: 0;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    padding: 9px 12px;
+  }
+  #foldersBar:hover { background: var(--bg3); }
+  #sideBody { flex: 1; overflow-y: auto; padding: 12px 10px 40px; }
+  #sidebar.collapsed { width: 40px; }
+  #sidebar.collapsed #sideBody { display: none; }
+  #sidebar.collapsed #foldersBar {
+    flex: 1;
+    border-bottom: 0;
+    writing-mode: vertical-rl;
+    text-align: left;
+    padding: 12px 0;
+    width: 100%;
+  }
+  #sidebar .hint { color: var(--fg-dim); font-size: 11px; margin: 0 0 10px; line-height: 1.4; }
+  #sidebar .actions { display: flex; gap: 6px; margin-bottom: 12px; }
+  #sidebar .actions button { font-size: 11px; padding: 4px 8px; }
+  .fnode > .frow {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 2px;
+    font-size: 12px;
+    white-space: nowrap;
+    border-radius: 2px;
+  }
+  .fnode > .frow:hover { background: var(--bg3); }
+  .ftoggle { width: 12px; color: var(--fg-dim); cursor: pointer; flex-shrink: 0; text-align: center; }
+  .fname { overflow: hidden; text-overflow: ellipsis; cursor: pointer; flex: 1; min-width: 0; }
+  .fcount { color: var(--fg-dim); font-size: 11px; flex-shrink: 0; }
+  .fprivate { color: var(--fg-dim); font-size: 10px; flex-shrink: 0; border: 1px solid var(--border); padding: 0 3px; }
+  .fnode.off > .frow .fname { color: var(--fg-dim); text-decoration: line-through; }
+  .fchildren { padding-left: 14px; display: none; }
+  #hiddenBox { margin-bottom: 12px; border: 1px solid var(--border); }
+  #hiddenToggle { width: 100%; text-align: left; border: 0; font-size: 12px; padding: 7px 8px; background: var(--bg3); }
+  #hiddenList { display: none; max-height: 45vh; overflow-y: auto; border-top: 1px solid var(--border); }
+  #hiddenBox.open #hiddenList { display: block; }
+  .hrow { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow .htext { flex: 1; min-width: 0; line-height: 1.35; }
+  .hrow .hname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hrow .hmeta { color: var(--fg-dim); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hrow .hmeta .you { color: var(--fg); }
+  .hrow button { font-size: 11px; padding: 3px 8px; flex-shrink: 0; }
+  .hrow { cursor: pointer; }
+  .hrow:hover { background: var(--bg3); }
+  #peekBar {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 9px 14px;
+    background: var(--bg2);
+    border-bottom: 2px solid var(--accent);
+    font-size: 13px;
+  }
+  #peekBar.show { display: flex; }
+  .tile .shownBadge { position: absolute; right: 5px; top: 5px; background: var(--accent); color: var(--ink); font-size: 10px; padding: 1px 5px; }
+  #peekBar .ptext { flex: 1; min-width: 180px; }
+  #peekBar .ptext b { word-break: break-word; }
+  #peekBar button { font-size: 12px; padding: 5px 10px; }
+  .hsub { padding: 6px 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--fg-dim); background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .hrow img { width: 36px; height: 36px; object-fit: cover; flex-shrink: 0; background: var(--bg3); }
+  #adminNote { color: var(--fg); border-left: 3px solid var(--accent); padding: 6px 8px; background: var(--bg); }
+  /* One-off greeting (birthday etc.): confetti behind a card. */
+  #greet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.35); opacity: 0; transition: opacity 0.4s; }
+  #greet.show { opacity: 1; }
+  #greet canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #greet .card {
+    position: relative;
+    background: var(--bg);
+    color: var(--fg);
+    border-top: 6px solid var(--accent);
+    padding: 34px 40px 28px;
+    max-width: min(520px, 90vw);
+    text-align: center;
+    box-shadow: 0 12px 50px rgba(0,0,0,0.35);
+    transform: scale(0.85);
+    transition: transform 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+  #greet.show .card { transform: scale(1); }
+  #greet h2 { margin: 0 0 14px; font-size: 28px; letter-spacing: 0.02em; }
+  #greet .msg { margin: 0 0 24px; color: var(--fg-dim); line-height: 1.6; font-size: 14px; }
+  #greet .msg p { margin: 0 0 14px; }
+  #greet .msg p:last-child { margin: 20px 0 0; color: var(--fg); font-style: italic; }
+  #greet button { background: var(--accent); color: var(--ink); border-color: var(--accent); padding: 8px 18px; font-weight: 700; }
+  #hiddenList .hnone { padding: 8px; color: var(--fg-dim); font-size: 11px; }
+  .fnode.open > .fchildren { display: block; }
+  input[type=checkbox] { accent-color: var(--accent); margin: 0; flex-shrink: 0; cursor: pointer; }
+
+  #scroller { flex: 1; overflow-y: auto; position: relative; min-width: 0; }
+  #canvas { position: relative; margin: 0 14px; }
+  .mhead {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding-bottom: 8px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .mhead .msel { font-size: 11px; font-weight: 400; color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-dim); }
+  .mhead .mcount { font-size: 11px; font-weight: 400; color: var(--fg-dim); }
+  .tile {
+    position: absolute;
+    background: var(--bg3);
+    cursor: pointer;
+    overflow: hidden;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .tile img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity 0.15s; }
+  .tile img.loaded { opacity: 1; }
+  .tile .vid {
+    position: absolute;
+    right: 5px;
+    bottom: 4px;
+    color: #fff;
+    font-size: 12px;
+    text-shadow: 0 0 3px #000, 0 0 2px #000;
+  }
+  .tile .pick {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: rgba(0,0,0,0.25);
+    box-shadow: 0 0 3px rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .tile:hover .pick, body.selecting .tile .pick { display: flex; }
+  .tile.sel .pick { display: flex; background: #fff; }
+  .tile.sel .pick::after { content: "\2713"; }
+  .tile.sel img { transform: scale(0.88); }
+  .tile.sel { outline: 3px solid var(--sel); outline-offset: -3px; }
+
+  /* Year rail: its own column beside the grid, so photos never sit behind the labels. */
+  #scrubber {
+    flex-shrink: 0;
+    width: 58px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px 0;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    user-select: none;
+  }
+  #scrubber span {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--fg);
+    text-align: center;
+    padding: 2px 0;
+  }
+  #scrubber span:hover { background: var(--bg3); font-weight: 700; }
+  #scrubber span.cur { background: var(--accent); color: var(--ink); font-weight: 700; }
+  #mainWrap { flex: 1; position: relative; display: flex; min-width: 0; }
+  #dateBubble {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--ink);
+    padding: 4px 10px;
+    font-size: 12px;
+    z-index: 5;
+    display: none;
+    pointer-events: none;
+  }
+  #status { color: var(--fg-dim); padding: 60px 20px; text-align: center; line-height: 1.6; }
+
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 20;
+    flex-direction: column;
+  }
+  #lightbox.open { display: flex; }
+  #lbStage { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+  /* Media fills the space between the arrows and above the bottom bar, never over them. */
+  #lbContent {
+    position: absolute;
+    inset: 10px 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #lbContent > img, #lbContent > video { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+  #lbStage .spinner { position: absolute; left: 50%; top: 50%; margin: -17px 0 0 -17px; display: none; }
+  #lbStage.loading .spinner { display: block; }
+  #lbContent .novid { color: var(--fg-dim); text-align: center; padding: 20px; line-height: 1.6; max-height: 100%; }
+  #lbContent .novid img { max-height: 50vh; max-width: 100%; display: block; margin: 0 auto 12px; }
+  .lbBar { background: var(--accent); color: var(--ink); position: relative; z-index: 1; }
+  .lbNav { z-index: 1; }
+  #lightbox.single .lbNav { display: none; }
+
+  #ctxMenu {
+    position: fixed;
+    z-index: 30;
+    display: none;
+    min-width: 230px;
+    max-width: 320px;
+    background: var(--bg2);
+    border: 1px solid var(--fg-dim);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    padding: 4px 0;
+    font-size: 13px;
+  }
+  #ctxMenu.open { display: block; }
+  #ctxMenu .ctxHead { padding: 6px 12px 7px; color: var(--fg-dim); font-size: 11px; border-bottom: 1px solid var(--border); margin-bottom: 4px; line-height: 1.4; }
+  #ctxMenu .ctxHead b { color: var(--fg); font-weight: 400; word-break: break-word; }
+  #ctxMenu button { display: block; width: 100%; text-align: left; border: 0; background: transparent; padding: 8px 12px; }
+  #ctxMenu button:hover { background: var(--bg3); }
+  #ctxMenu hr { border: 0; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    z-index: 25;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: var(--fg);
+    color: var(--bg);
+    padding: 10px 14px;
+    font-size: 13px;
+    max-width: 92vw;
+  }
+  #toast.show { display: flex; }
+  #toast button { background: transparent; color: var(--bg); border-color: var(--bg); padding: 4px 10px; font-size: 12px; }
+  .lbNav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg2);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    font-size: 20px;
+    padding: 14px 12px;
+  }
+  #lbPrev { left: 10px; }
+  #lbNext { right: 10px; }
+  .lbBar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .lbBar .info { flex: 1; min-width: 200px; line-height: 1.5; }
+  .lbBar .info #lbDate { font-weight: 700; }
+  .lbBar .info .where { opacity: 0.7; word-break: break-all; }
+  .lbBar button, .lbBar a.btn {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid rgba(26,26,26,0.35);
+    padding: 7px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .lbBar button:hover, .lbBar a.btn:hover { border-color: var(--ink); background: rgba(255,255,255,0.18); }
+  .lbBar #lbClose { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  @media (max-width: 760px) {
+    #sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 10;
+      width: 86vw;
+      box-shadow: 0 0 30px rgba(0,0,0,0.35);
+    }
+    /* Collapsed, it's an ordinary rail again rather than an overlay. */
+    #sidebar.collapsed { position: static; width: 32px; box-shadow: none; }
+    #canvas { margin: 0 4px 0 6px; }
+    #scrubber { width: 44px; }
+    #scrubber span { font-size: 11px; }
+    #summary { display: none; }
+    .lbNav { display: none; }
+    #lbContent { inset: 6px; }
+    /* Phones: date + close on the first row, the other buttons below; no file path. */
+    .lbBar { gap: 6px; padding: 8px 10px; }
+    .lbBar .info { flex: 1 1 calc(100% - 110px); min-width: 0; order: 0; }
+    .lbBar .info .where { display: none; }
+    .lbBar #lbClose { order: 1; }
+    .lbBar a.btn, .lbBar button { order: 2; padding: 5px 8px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <h1>ARCHIVE</h1>
+    <div class="views">
+      <button class="on">photos</button>
+      <button id="filesBtn">files</button>
+    </div>
+    <button id="selectBtn">select</button>
+    <span id="summary"></span>
+    <span class="spacer"></span>
+    <div id="selBar">
+      <span id="selCount"></span>
+      <button id="dlSelBtn">download (.zip)</button>
+      <button id="hideSelBtn">hide</button>
+      <button id="unhideSelBtn" style="display:none">unhide</button>
+      <button id="clearSelBtn">clear selection</button>
+    </div>
+    <button id="themeToggle">light / dark</button>
+  </div>
+  <div id="body">
+    <div id="sidebar">
+      <button id="foldersBar" title="show or hide the folder list"></button>
+      <div id="sideBody">
+      <p id="adminNote" class="hint" style="display:none"></p>
+      <p class="hint">Click on a folder name to expand, or on the box beside it to toggle its visibility. You can also hide the folder a given photo comes from by right-clicking on it.</p>
+      <div class="actions">
+        <button id="showAllBtn">show all</button>
+        <button id="resetBtn">reset to default</button>
+      </div>
+      <div id="hiddenBox">
+        <button id="hiddenToggle"></button>
+        <div id="hiddenList"></div>
+      </div>
+      <div id="tree"></div>
+      </div>
+    </div>
+    <div id="mainWrap">
+      <div id="scroller">
+        <div id="peekBar">
+          <span class="ptext"></span>
+          <button id="peekShow">unhide this folder</button>
+          <button id="peekBack">back to timeline</button>
+        </div>
+        <div id="canvas"></div>
+        <div id="status">loading photos...</div>
+      </div>
+      <div id="scrubber"></div>
+      <div id="dateBubble"></div>
+    </div>
+  </div>
+</div>
+
+<div id="lightbox">
+  <div class="lbBar">
+    <div class="info"><div id="lbDate"></div><div class="where" id="lbWhere"></div></div>
+    <a class="btn" id="lbDownload" href="#">download</a>
+    <a class="btn" id="lbFolder" href="#">open folder</a>
+    <button id="lbLink">copy link</button>
+    <button id="lbSelect">select</button>
+    <button id="lbHide">hide</button>
+    <button id="lbClose">&times; close</button>
+  </div>
+  <div id="lbStage">
+    <div class="spinner"></div>
+    <div id="lbContent"></div>
+    <button class="lbNav" id="lbPrev">&larr;</button>
+    <button class="lbNav" id="lbNext">&rarr;</button>
+  </div>
+</div>
+
+<div id="ctxMenu" role="menu"></div>
+<div id="greet" style="display:none"><canvas></canvas><div class="card"><h2></h2><div class="msg"></div><button>see the photos</button></div></div>
+<div id="toast"><span id="toastMsg"></span><button id="toastUndo">undo</button></div>
+
+<form id="zipForm" method="POST" action="/archive-api/zip-items" style="display:none"><input type="hidden" name="ids" id="zipIds"></form>
+
+<script>
+const API = "/archive-api";
+const HIDDEN_KEY = "archive-hidden-folders-v1";
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const scroller = document.getElementById("scroller");
+const canvas = document.getElementById("canvas");
+const statusEl = document.getElementById("status");
+const scrubber = document.getElementById("scrubber");
+const bubble = document.getElementById("dateBubble");
+const sidebar = document.getElementById("sidebar");
+
+let data = null;          // {folders, hidden, soft, items: [[id, date, approx, w, h, video, folders]]}
+let folderOff = [];       // folderOff[i] = true when folder i is hidden
+let visible = [];         // items currently shown, newest first
+let layout = [];          // rows: {type: "head"|"tiles", top, height, ...}
+let totalHeight = 0;
+let cols = 4, tileSize = 150, gap = 4;
+const selected = new Set();
+let lastClicked = -1;     // index into visible, for shift-click ranges
+let selecting = false;
+
+// ---------- theme / chrome ----------
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem("archive-theme-v2", t);
+}
+applyTheme(localStorage.getItem("archive-theme-v2") || "light");
+document.getElementById("themeToggle").onclick = () =>
+  applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+document.getElementById("filesBtn").onclick = () => (location.href = "/archive/files.html");
+const foldersBar = document.getElementById("foldersBar");
+function setSidebar(open) {
+  sidebar.classList.toggle("collapsed", !open);
+  foldersBar.textContent = open ? "\u25C2 FOLDERS" : "FOLDERS \u25B8";
+  localStorage.setItem("archive-sidebar", open ? "open" : "closed");
+  relayout();
+}
+foldersBar.onclick = () => setSidebar(sidebar.classList.contains("collapsed"));
+document.getElementById("selectBtn").onclick = () => setSelecting(!selecting);
+
+function setSelecting(on) {
+  selecting = on;
+  document.body.classList.toggle("selecting", on);
+  document.getElementById("selectBtn").classList.toggle("on", on);
+  document.getElementById("selectBtn").textContent = on ? "done" : "select";
+  if (!on && selected.size === 0) lastClicked = -1;
+}
+
+// ---------- dates ----------
+// Items whose only date clue was the folder's year are stored as Jan 1 00:00:00 of that year.
+const yearOnly = (it) => it[2] && it[1].slice(5) === "01-01 00:00:00";
+function groupKey(it) {
+  return yearOnly(it) ? it[1].slice(0, 4) + "-00" : it[1].slice(0, 7);
+}
+function groupLabel(key) {
+  const [y, m] = key.split("-");
+  return m === "00" ? `${y} (date unknown)` : `${MONTHS[+m - 1]} ${y}`;
+}
+function fmtFull(it) {
+  if (yearOnly(it)) return `sometime in ${it[1].slice(0, 4)}`;
+  const [d, t] = it[1].split(" ");
+  const [y, m, day] = d.split("-");
+  const [hh, mm] = t.split(":");
+  const h = +hh % 12 || 12;
+  const s = `${SHORT[+m - 1]} ${+day}, ${y}` + (it[2] ? "" : ` at ${h}:${mm} ${+hh < 12 ? "am" : "pm"}`);
+  return it[2] ? `${s} (approximate)` : s;
+}
+
+// ---------- folder visibility ----------
+// The admin login (me.admin) edits the defaults everyone starts from, stored on the server;
+// everyone else's choices are personal and kept in this browser.
+let me = { user: "", admin: false };
+const forWho = () => (me.admin ? " for everyone" : "");
+
+function loadFolderState() {
+  const saved = me.admin ? {} : JSON.parse(localStorage.getItem(HIDDEN_KEY) || "{}");
+  const def = new Set(data.hidden);
+  folderOff = data.folders.map((f, i) => (f in saved ? saved[f] : def.has(i)));
+}
+function saveFolderState() {
+  const def = new Set(data.hidden);
+  if (me.admin) {
+    const changes = {};
+    data.folders.forEach((f, i) => {
+      if (folderOff[i] !== def.has(i)) changes[f] = folderOff[i];
+    });
+    if (!Object.keys(changes).length) return;
+    data.hidden = folderOff.map((off, i) => (off ? i : -1)).filter((i) => i >= 0);
+    postJson("/defaults", { folders: changes }).catch(() => showToast("Couldn't save that for everyone. Check the connection and try again."));
+    return;
+  }
+  // Store only the user's departures from the defaults, keyed by path so a re-index keeps them.
+  const out = {};
+  data.folders.forEach((f, i) => {
+    if (folderOff[i] !== def.has(i)) out[f] = folderOff[i];
+  });
+  localStorage.setItem(HIDDEN_KEY, JSON.stringify(out));
+}
+let peek = null; // {row, name}: looking inside one hidden folder instead of the timeline
+let softSet = new Set();
+
+// Any hidden folder hides a photo, except "soft" ones (Paul's phone dumps): those only
+// hide photos that aren't also filed in a folder that's showing.
+function folderHides(it) {
+  const f = it[6];
+  return f.some((i) => folderOff[i] && !softSet.has(i)) || f.every((i) => folderOff[i]);
+}
+// One-by-one choices beat folders: a hidden photo stays hidden, an unhidden one shows anyway.
+function isShown(it) {
+  if (hiddenItems.has(it[0])) return false;
+  if (forcedShown.has(it[0])) return true;
+  return !folderHides(it);
+}
+
+function applyFilter() {
+  if (peek) {
+    const inside = new Set(peek.row.all);
+    visible = data.items.filter((it) => it[6].some((i) => inside.has(i)));
+  } else {
+    softSet = new Set(data.soft || []);
+    visible = data.items.filter(isShown);
+  }
+  const shown = new Set(visible.map((v) => v[0]));
+  for (const id of [...selected]) if (!shown.has(id)) selected.delete(id);
+  const hiddenCount = data.items.length - visible.length;
+  document.getElementById("summary").textContent = peek
+    ? `${visible.length.toLocaleString()} photos & videos in this folder`
+    : `${visible.length.toLocaleString()} photos & videos` + (hiddenCount ? ` · ${hiddenCount.toLocaleString()} hidden` : "");
+  updateSelBar();
+  relayout(true);
+}
+
+// ---------- single photos hidden or unhidden one by one ----------
+// Defaults come from the server (set by the admin login). Personal choices are stored by
+// share key (stable across re-indexes) in this browser: 1 = hide it, 0 = show it regardless
+// of its folder or the defaults.
+const HIDDEN_ITEMS_KEY = "archive-hidden-items-v1";
+let defaultHidden = new Map(); // timeline id -> share key, hidden for everyone
+let defaultShown = new Map();  // timeline id -> share key, shown for everyone despite its folder
+let localItems = {};           // share key -> 1 | 0
+const keyToId = new Map();
+let hiddenItems = new Map();   // timeline id -> share key, what's actually hidden here
+let forcedShown = new Set();   // timeline ids shown here even though their folder is hidden
+let rowById = new Map();
+
+async function loadHiddenItems() {
+  defaultHidden = new Map(data.hiddenItems || []);
+  defaultShown = new Map(data.shownItems || []);
+  localItems = me.admin ? {} : JSON.parse(localStorage.getItem(HIDDEN_ITEMS_KEY) || "{}");
+  const keys = Object.keys(localItems);
+  if (keys.length) {
+    const map = await postJson("/resolve-many", { keys }).catch(() => ({}));
+    for (const k of keys) if (k in map) keyToId.set(k, map[k]);
+  }
+  recomputeHidden();
+}
+function recomputeHidden() {
+  hiddenItems = new Map();
+  forcedShown = new Set();
+  for (const [id, k] of defaultHidden) if (localItems[k] !== 0) hiddenItems.set(id, k);
+  for (const [id, k] of defaultShown) if (localItems[k] !== 1) forcedShown.add(id);
+  for (const [k, v] of Object.entries(localItems)) {
+    if (!keyToId.has(k)) continue;
+    if (v === 1) hiddenItems.set(keyToId.get(k), k);
+    if (v === 0) forcedShown.add(keyToId.get(k));
+  }
+}
+function saveHiddenItems() {
+  recomputeHidden();
+  if (!me.admin) localStorage.setItem(HIDDEN_ITEMS_KEY, JSON.stringify(localItems));
+}
+function postJson(url, body) {
+  return fetch(API + url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => {
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  });
+}
+function kindLabel(ids) {
+  if (ids.length > 1) return `${ids.length.toLocaleString()} items`;
+  return rowById.get(ids[0])?.[5] ? "video" : "photo";
+}
+// Sets each photo to shown or hidden with the smallest change: first drop an opposite choice,
+// and only record a new one if the folders and defaults wouldn't already give the right result.
+async function setItemsShown(ids, wantShown) {
+  const keys = await postJson("/keys", { ids }).catch(() => null);
+  if (!keys) {
+    showToast("Couldn't change that. Try again in a moment.");
+    return false;
+  }
+  const change = {};
+  for (const id of ids) {
+    const k = keys[id];
+    const it = rowById.get(id);
+    if (!k || !it) continue;
+    keyToId.set(k, id);
+    if (me.admin) {
+      defaultHidden.delete(id);
+      defaultShown.delete(id);
+      recomputeHidden();
+      if (isShown(it) !== wantShown) (wantShown ? defaultShown : defaultHidden).set(id, k);
+      change[k] = defaultHidden.has(id) ? "hide" : defaultShown.has(id) ? "show" : null;
+    } else {
+      delete localItems[k];
+      recomputeHidden();
+      if (isShown(it) !== wantShown) localItems[k] = wantShown ? 0 : 1;
+    }
+  }
+  if (me.admin && !(await postJson("/defaults", { items: change }).catch(() => null))) {
+    showToast("Couldn't save that for everyone. Try again.");
+    return false;
+  }
+  saveHiddenItems();
+  applyFilter();
+  renderHiddenList();
+  return true;
+}
+async function hideItems(ids) {
+  if (await setItemsShown(ids, false)) showToast(`Hid ${ids.length > 1 ? "" : "this "}${kindLabel(ids)}${forWho()}`, () => unhideItems(ids, true));
+}
+async function unhideItems(ids, quiet) {
+  if ((await setItemsShown(ids, true)) && !quiet) showToast(`Showing ${ids.length > 1 ? "" : "the "}${kindLabel(ids)}${forWho()}`, () => hideItems(ids));
+}
+
+// ---------- folder tree ----------
+let treeRoot = null;
+function buildTree() {
+  treeRoot = { name: "", path: "", children: new Map(), folders: [], count: 0 };
+  const counts = new Array(data.folders.length).fill(0);
+  for (const it of data.items) for (const f of it[6]) counts[f]++;
+  data.folders.forEach((path, i) => {
+    let node = treeRoot;
+    for (const part of path.split("/")) {
+      if (!node.children.has(part)) {
+        node.children.set(part, { name: part, path: (node.path ? node.path + "/" : "") + part, children: new Map(), folders: [], count: 0 });
+      }
+      node = node.children.get(part);
+    }
+    node.folders.push(i);
+  });
+  (function sum(n) {
+    n.all = [...n.folders];
+    n.count = n.ownCount = n.folders.reduce((a, i) => a + counts[i], 0);
+    for (const c of n.children.values()) {
+      sum(c);
+      n.all.push(...c.all);
+      n.count += c.count;
+    }
+  })(treeRoot);
+  // Collapse single-child chains like "Office PC / Users / Home / Dropbox" into one row.
+  (function squash(n) {
+    for (const [k, c] of [...n.children]) {
+      let cur = c;
+      while (cur.folders.length === 0 && cur.children.size === 1) {
+        const only = [...cur.children.values()][0];
+        only.name = cur.name + " / " + only.name;
+        cur = only;
+      }
+      n.children.set(k, cur);
+      squash(cur);
+    }
+  })(treeRoot);
+  const defaults = new Set(data.hidden);
+  const treeEl = document.getElementById("tree");
+  treeEl.innerHTML = "";
+  const sorted = (n) => [...n.children.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  for (const c of sorted(treeRoot)) treeEl.appendChild(makeNode(c, sorted, defaults));
+  refreshTree();
+}
+
+function makeNode(n, sorted, defaults) {
+  const el = document.createElement("div");
+  el.className = "fnode";
+  const row = document.createElement("div");
+  row.className = "frow";
+  const kids = sorted(n);
+  const tog = document.createElement("span");
+  tog.className = "ftoggle";
+  tog.textContent = kids.length ? "+" : "";
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  const name = document.createElement("span");
+  name.className = "fname";
+  name.textContent = n.name;
+  name.title = n.name;
+  const count = document.createElement("span");
+  count.className = "fcount";
+  count.textContent = n.count.toLocaleString();
+  row.append(tog, cb, name);
+  if (n.all.some((i) => defaults.has(i))) {
+    const p = document.createElement("span");
+    p.className = "fprivate";
+    p.textContent = "hidden";
+    p.title = "hidden by default";
+    row.append(p);
+  }
+  row.append(count);
+  el.append(row);
+  const kidsEl = document.createElement("div");
+  kidsEl.className = "fchildren";
+  el.append(kidsEl);
+  let built = false;
+  const toggle = () => {
+    if (!kids.length) return;
+    if (!built) {
+      for (const k of kids) kidsEl.appendChild(makeNode(k, sorted, defaults));
+      built = true;
+      refreshTree();
+    }
+    el.classList.toggle("open");
+    tog.textContent = el.classList.contains("open") ? "-" : "+";
+  };
+  tog.onclick = toggle;
+  name.onclick = toggle;
+  cb.onchange = () => {
+    for (const i of n.all) folderOff[i] = !cb.checked;
+    saveFolderState();
+    refreshTree();
+    applyFilter();
+  };
+  el._node = n;
+  el._cb = cb;
+  return el;
+}
+
+// Every hidden folder in one list, so something hidden by accident is easy to find.
+// A fully hidden branch is one row; partly hidden branches are listed by their hidden parts.
+function hiddenRows() {
+  const def = new Set(data.hidden);
+  const rows = [];
+  (function walk(n) {
+    for (const c of n.children.values()) {
+      const off = c.all.filter((i) => folderOff[i]);
+      if (!off.length) continue;
+      if (off.length === c.all.length) {
+        rows.push({ path: c.path, all: c.all, count: c.count });
+        continue;
+      }
+      const own = c.folders.filter((i) => folderOff[i]);
+      if (own.length) rows.push({ path: c.path, all: own, count: c.ownCount, ownOnly: true });
+      walk(c);
+    }
+  })(treeRoot);
+  for (const r of rows) r.byYou = r.all.some((i) => folderOff[i] && !def.has(i));
+  return rows.sort((a, b) => b.byYou - a.byYou || a.path.localeCompare(b.path, undefined, { numeric: true }));
+}
+function renderHiddenList() {
+  const rows = hiddenRows();
+  const box = document.getElementById("hiddenBox");
+  const nItems = hiddenItems.size;
+  document.getElementById("hiddenToggle").textContent =
+    `${box.classList.contains("open") ? "\u25BE" : "\u25B8"} ${rows.length} hidden folder${rows.length === 1 ? "" : "s"}` +
+    (nItems ? `, ${nItems} hidden photo${nItems === 1 ? "" : "s"}` : "");
+  const list = document.getElementById("hiddenList");
+  list.innerHTML = "";
+  if (!rows.length && !nItems) list.innerHTML = `<div class="hnone">Nothing is hidden.</div>`;
+  if (nItems) {
+    list.insertAdjacentHTML("beforeend", `<div class="hsub">PHOTOS &amp; VIDEOS</div>`);
+    for (const id of hiddenItems.keys()) {
+      const it = rowById.get(id);
+      if (!it) continue;
+      const el = document.createElement("div");
+      el.className = "hrow";
+      el.title = "click to view";
+      el.innerHTML = `<img loading="lazy" alt=""><div class="htext"><div class="hname"></div><div class="hmeta"></div></div><button>show</button>`;
+      el.querySelector("img").src = `${API}/t/${id}?s=400`;
+      el.querySelector(".hname").textContent = fmtFull(it);
+      const byDefault = defaultHidden.has(id) && localItems[hiddenItems.get(id)] === undefined;
+      el.querySelector(".hmeta").textContent = `${me.admin ? "hidden for everyone" : byDefault ? "hidden by default" : "hidden by you"} · ${it[5] ? "video" : "photo"}`;
+      el.querySelector("button").onclick = (e) => {
+        e.stopPropagation();
+        unhideItems([id]);
+      };
+      el.onclick = () => openLbList([it], 0);
+      el.oncontextmenu = (e) => {
+        e.preventDefault();
+        openMenu(e.clientX, e.clientY, fmtFull(it), [
+          ["view", () => openLbList([it], 0)],
+          [`unhide this ${it[5] ? "video" : "photo"}`, () => unhideItems([id])],
+        ]);
+      };
+      list.appendChild(el);
+    }
+    if (rows.length) list.insertAdjacentHTML("beforeend", `<div class="hsub">FOLDERS</div>`);
+  }
+  for (const r of rows) {
+    const el = document.createElement("div");
+    el.className = "hrow";
+    el.title = "click to look inside";
+    const parts = r.path.split("/");
+    const name = parts.pop();
+    el.innerHTML = `<div class="htext"><div class="hname"></div><div class="hmeta"></div></div><button>show</button>`;
+    el.querySelector(".hname").textContent = name + (r.ownOnly ? " (not subfolders)" : "");
+    el.querySelector(".hmeta").innerHTML = `${me.admin ? "hidden for everyone" : r.byYou ? '<span class="you">hidden by you</span>' : "hidden by default"} · ${r.count.toLocaleString()} · `;
+    el.querySelector(".hmeta").append(parts.join(" / ") || "top level");
+    el.querySelector("button").onclick = (e) => {
+      e.stopPropagation();
+      unhideRow(r, name);
+    };
+    el.onclick = () => startPeek(r, name);
+    el.oncontextmenu = (e) => {
+      e.preventDefault();
+      openMenu(e.clientX, e.clientY, r.path, [
+        ["look inside", () => startPeek(r, name)],
+        ["unhide this folder", () => unhideRow(r, name)],
+        ["show this folder in files view", () => (location.href = `/archive/files.html?path=${encodeURIComponent(r.path)}`)],
+      ]);
+    };
+    list.appendChild(el);
+  }
+}
+function unhideRow(r, name) {
+  const def = new Set(data.hidden);
+  const before = folderOff.slice();
+  // Undo what you hid but leave default-private folders inside it hidden; a default-hidden
+  // folder on its own is simply shown.
+  for (const i of r.all) folderOff[i] = r.byYou ? def.has(i) : false;
+  saveFolderState();
+  peek = null;
+  document.getElementById("peekBar").classList.remove("show");
+  refreshTree();
+  applyFilter();
+  showToast(`Showing "${name}"${forWho()}`, () => {
+    folderOff = before;
+    saveFolderState();
+    refreshTree();
+    applyFilter();
+  });
+}
+
+// Looking inside a hidden folder swaps the grid for just its photos, without unhiding it.
+function startPeek(r, name) {
+  peek = { row: r, name };
+  const bar = document.getElementById("peekBar");
+  bar.querySelector(".ptext").innerHTML = "Looking inside hidden folder <b></b>";
+  bar.querySelector("b").textContent = name;
+  bar.querySelector("b").title = r.path;
+  bar.classList.add("show");
+  if (window.innerWidth <= 760) setSidebar(false);
+  applyFilter();
+  scroller.scrollTop = 0;
+}
+function endPeek() {
+  if (!peek) return;
+  peek = null;
+  document.getElementById("peekBar").classList.remove("show");
+  applyFilter();
+  scroller.scrollTop = 0;
+}
+document.getElementById("peekBack").onclick = endPeek;
+document.getElementById("peekShow").onclick = () => peek && unhideRow(peek.row, peek.name);
+document.getElementById("hiddenToggle").onclick = () => {
+  document.getElementById("hiddenBox").classList.toggle("open");
+  renderHiddenList();
+};
+
+function refreshTree() {
+  document.querySelectorAll(".fnode").forEach((el) => {
+    const all = el._node.all;
+    const off = all.filter((i) => folderOff[i]).length;
+    el._cb.checked = off < all.length;
+    el._cb.indeterminate = off > 0 && off < all.length;
+    el.classList.toggle("off", off === all.length);
+  });
+  renderHiddenList();
+}
+
+document.getElementById("showAllBtn").onclick = () => {
+  if (me.admin && !confirm("Show every folder, including the private ones, for everyone by default?")) return;
+  folderOff = folderOff.map(() => false);
+  saveFolderState();
+  refreshTree();
+  applyFilter();
+};
+document.getElementById("resetBtn").onclick = async () => {
+  if (me.admin) {
+    if (!confirm("Reset everyone's folder defaults back to the built-in rules? Photos you hid one by one stay hidden.")) return;
+    await postJson("/defaults", { resetFolders: true }).catch(() => null);
+    return location.reload();
+  }
+  localStorage.removeItem(HIDDEN_KEY);
+  loadFolderState();
+  refreshTree();
+  applyFilter();
+};
+
+// ---------- layout + virtual scrolling ----------
+function relayout(keepTop) {
+  const anchor = keepTop ? null : topVisibleItem();
+  const width = canvas.clientWidth || scroller.clientWidth - 28;
+  const target = window.innerWidth <= 760 ? 92 : 170;
+  cols = Math.max(3, Math.round((width + gap) / (target + gap)));
+  tileSize = Math.floor((width - gap * (cols - 1)) / cols);
+  layout = [];
+  let y = 0;
+  let i = 0;
+  while (i < visible.length) {
+    const key = groupKey(visible[i]);
+    let j = i;
+    while (j < visible.length && groupKey(visible[j]) === key) j++;
+    const headH = 46;
+    layout.push({ type: "head", top: y, height: headH, key, start: i, end: j });
+    y += headH;
+    for (let r = i; r < j; r += cols) {
+      layout.push({ type: "tiles", top: y, height: tileSize + gap, start: r, end: Math.min(r + cols, j) });
+      y += tileSize + gap;
+    }
+    y += 14;
+    i = j;
+  }
+  totalHeight = y + 40;
+  canvas.style.height = totalHeight + "px";
+  statusEl.style.display = visible.length ? "none" : "block";
+  if (!visible.length) statusEl.textContent = "No photos to show. Tick some folders in the sidebar.";
+  buildScrubber();
+  rendered.clear();
+  canvas.innerHTML = "";
+  if (anchor != null) scrollToItem(anchor);
+  render();
+}
+
+function rowAt(y) {
+  let lo = 0, hi = layout.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1;
+    if (layout[mid].top <= y) lo = mid; else hi = mid - 1;
+  }
+  return lo;
+}
+function topVisibleItem() {
+  if (!layout.length) return null;
+  const r = layout[rowAt(scroller.scrollTop)];
+  return r ? visible[r.start] && visible[r.start][0] : null;
+}
+function scrollToItem(id) {
+  const idx = visible.findIndex((v) => v[0] === id);
+  if (idx < 0) return;
+  const row = layout.find((r) => r.type === "tiles" && idx >= r.start && idx < r.end);
+  if (row) scroller.scrollTop = row.top - 50;
+}
+
+const rendered = new Map(); // row index -> element(s)
+function render() {
+  if (!layout.length) return;
+  const top = scroller.scrollTop - 800;
+  const bottom = scroller.scrollTop + scroller.clientHeight + 1200;
+  const first = rowAt(Math.max(0, top));
+  const wanted = new Set();
+  for (let r = first; r < layout.length && layout[r].top < bottom; r++) wanted.add(r);
+  for (const [r, els] of rendered) {
+    if (!wanted.has(r)) {
+      els.forEach((e) => e.remove());
+      rendered.delete(r);
+    }
+  }
+  // One fixed grid size keeps the server's thumbnail cache warm across phones and laptops.
+  const thumbPx = 400;
+  for (const r of wanted) {
+    if (rendered.has(r)) continue;
+    const row = layout[r];
+    const els = [];
+    if (row.type === "head") {
+      const h = document.createElement("div");
+      h.className = "mhead";
+      h.style.top = row.top + "px";
+      h.style.height = row.height + "px";
+      const n = row.end - row.start;
+      h.innerHTML = `<span>${groupLabel(row.key)}</span><span class="mcount">${n.toLocaleString()}</span><span class="msel">select all</span>`;
+      h.querySelector(".msel").onclick = () => {
+        const ids = visible.slice(row.start, row.end).map((v) => v[0]);
+        const all = ids.every((id) => selected.has(id));
+        ids.forEach((id) => (all ? selected.delete(id) : selected.add(id)));
+        if (!all) setSelecting(true);
+        syncSelection();
+      };
+      canvas.appendChild(h);
+      els.push(h);
+    } else {
+      for (let k = row.start; k < row.end; k++) {
+        const it = visible[k];
+        const t = document.createElement("div");
+        t.className = "tile" + (selected.has(it[0]) ? " sel" : "");
+        t.style.top = row.top + "px";
+        t.style.left = (k - row.start) * (tileSize + gap) + "px";
+        t.style.width = t.style.height = tileSize + "px";
+        t.dataset.idx = k;
+        const img = new Image();
+        img.decoding = "async";
+        img.onload = () => img.classList.add("loaded");
+        img.src = `${API}/t/${it[0]}?s=${thumbPx}`;
+        img.alt = "";
+        t.appendChild(img);
+        if (it[5]) {
+          const v = document.createElement("span");
+          v.className = "vid";
+          v.textContent = "▶ video";
+          t.appendChild(v);
+        }
+        // Inside a hidden folder, mark the photos that show in the timeline anyway.
+        if (peek && isShown(it)) {
+          const b = document.createElement("span");
+          b.className = "shownBadge";
+          b.textContent = "visible";
+          t.appendChild(b);
+        }
+        const pick = document.createElement("span");
+        pick.className = "pick";
+        t.appendChild(pick);
+        canvas.appendChild(t);
+        els.push(t);
+      }
+    }
+    rendered.set(r, els);
+  }
+  updateBubble();
+}
+
+let bubbleTimer = null;
+function updateBubble() {
+  const r = layout[rowAt(scroller.scrollTop + 10)];
+  if (!r) return;
+  bubble.textContent = groupLabel(groupKey(visible[r.start]));
+  markScrubber();
+}
+let ticking = false;
+scroller.addEventListener("scroll", () => {
+  if (!ticking) {
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      render();
+    });
+  }
+  bubble.style.display = "block";
+  clearTimeout(bubbleTimer);
+  bubbleTimer = setTimeout(() => (bubble.style.display = "none"), 900);
+});
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => relayout(), 150);
+});
+
+// Year labels down the right edge; tap one to jump there.
+function buildScrubber() {
+  scrubber.innerHTML = "";
+  const years = [];
+  for (const row of layout) {
+    if (row.type !== "head") continue;
+    const y = row.key.slice(0, 4);
+    if (!years.length || years[years.length - 1].y !== y) years.push({ y, top: row.top });
+  }
+  const maxLabels = Math.max(2, Math.floor(scrubber.clientHeight / 24));
+  const step = Math.ceil(years.length / maxLabels);
+  scrubLabels = [];
+  years.forEach((yr, i) => {
+    if (i % step) return;
+    const s = document.createElement("span");
+    s.textContent = yr.y;
+    s.onclick = () => (scroller.scrollTop = yr.top);
+    scrubber.appendChild(s);
+    scrubLabels.push({ top: yr.top, el: s });
+  });
+  markScrubber();
+}
+let scrubLabels = [];
+// Highlights the year label for wherever the grid is currently scrolled to.
+function markScrubber() {
+  let cur = null;
+  for (const l of scrubLabels) if (l.top <= scroller.scrollTop + 60) cur = l;
+  for (const l of scrubLabels) l.el.classList.toggle("cur", l === (cur || scrubLabels[0]));
+}
+
+// ---------- selection ----------
+function syncSelection() {
+  canvas.querySelectorAll(".tile").forEach((t) => {
+    t.classList.toggle("sel", selected.has(visible[+t.dataset.idx][0]));
+  });
+  updateSelBar();
+}
+function updateSelBar() {
+  const bar = document.getElementById("selBar");
+  bar.classList.toggle("show", selected.size > 0);
+  document.getElementById("selCount").textContent = `${selected.size.toLocaleString()} selected`;
+  document.getElementById("unhideSelBtn").style.display = peek ? "" : "none";
+}
+function toggleSelect(idx, shift) {
+  const id = visible[idx][0];
+  if (shift && lastClicked >= 0) {
+    const [a, b] = [Math.min(lastClicked, idx), Math.max(lastClicked, idx)];
+    for (let k = a; k <= b; k++) selected.add(visible[k][0]);
+  } else if (selected.has(id)) {
+    selected.delete(id);
+  } else {
+    selected.add(id);
+  }
+  lastClicked = idx;
+  syncSelection();
+}
+canvas.addEventListener("click", (e) => {
+  const t = e.target.closest(".tile");
+  if (!t) return;
+  if (suppressClick) {
+    suppressClick = false;
+    return;
+  }
+  const idx = +t.dataset.idx;
+  if (selecting || e.target.classList.contains("pick") || e.shiftKey || e.metaKey || e.ctrlKey) {
+    if (!selecting) setSelecting(true);
+    toggleSelect(idx, e.shiftKey);
+  } else {
+    openLightbox(idx);
+  }
+});
+document.getElementById("clearSelBtn").onclick = () => {
+  selected.clear();
+  lastClicked = -1;
+  syncSelection();
+  setSelecting(false);
+};
+document.getElementById("unhideSelBtn").onclick = () => {
+  if (!selected.size) return;
+  const ids = [...selected];
+  selected.clear();
+  setSelecting(false);
+  unhideItems(ids);
+};
+document.getElementById("hideSelBtn").onclick = () => {
+  if (!selected.size) return;
+  const ids = [...selected];
+  selected.clear();
+  setSelecting(false);
+  hideItems(ids);
+};
+document.getElementById("dlSelBtn").onclick = () => {
+  if (!selected.size) return;
+  if (selected.size > 500 && !confirm(`Download ${selected.size.toLocaleString()} files as one zip? This could be a very large download.`)) return;
+  // A real form post lets the browser stream the zip straight to disk instead of holding it in memory.
+  document.getElementById("zipIds").value = [...selected].join(",");
+  document.getElementById("zipForm").submit();
+};
+
+// ---------- right-click menu ----------
+const ctxMenu = document.getElementById("ctxMenu");
+let suppressClick = false;
+
+function folderOf(path) {
+  return path.split("/").slice(0, -1).join("/");
+}
+function shortFolder(f) {
+  return f.split("/").pop() || "archive";
+}
+function hideFolders(idxs, label) {
+  const before = folderOff.slice();
+  for (const i of idxs) folderOff[i] = true;
+  saveFolderState();
+  refreshTree();
+  const shownBefore = visible.length;
+  applyFilter();
+  showToast(`Hid "${label}" (${(shownBefore - visible.length).toLocaleString()} photos)${forWho()}`, () => {
+    folderOff = before;
+    saveFolderState();
+    refreshTree();
+    applyFilter();
+  });
+}
+
+// Small menu at the pointer: entries are [label, action].
+function openMenu(x, y, title, entries) {
+  ctxMenu.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "ctxHead";
+  head.innerHTML = "<b></b>";
+  head.querySelector("b").textContent = title;
+  ctxMenu.appendChild(head);
+  for (const [label, fn] of entries) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.onclick = () => {
+      closeCtx();
+      fn();
+    };
+    ctxMenu.appendChild(b);
+  }
+  ctxMenu.classList.add("open");
+  const r = ctxMenu.getBoundingClientRect();
+  ctxMenu.style.left = Math.max(4, Math.min(x, window.innerWidth - r.width - 4)) + "px";
+  ctxMenu.style.top = Math.max(4, Math.min(y, window.innerHeight - r.height - 4)) + "px";
+}
+function closeCtx() {
+  ctxMenu.classList.remove("open");
+}
+async function openCtx(idx, x, y) {
+  const it = visible[idx];
+  const id = it[0];
+  const sel = selected.has(id);
+  ctxMenu.innerHTML = "";
+  const head = document.createElement("div");
+  head.className = "ctxHead";
+  head.innerHTML = `${fmtFull(it)}<br>in <b>…</b>`;
+  ctxMenu.appendChild(head);
+  const add = (label, fn) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.onclick = () => {
+      closeCtx();
+      fn();
+    };
+    ctxMenu.appendChild(b);
+    return b;
+  };
+  add("open", () => openLightbox(idx));
+  add(sel ? "unselect" : "select", () => {
+    if (!selecting) setSelecting(true);
+    toggleSelect(idx, false);
+  });
+  if (selected.size > 0 && !sel) {
+    add(`select everything up to here`, () => {
+      if (!selecting) setSelecting(true);
+      toggleSelect(idx, true);
+    });
+  }
+  add("download", () => (location.href = `${API}/m/${id}?download=1`));
+  const kind = it[5] ? "video" : "photo";
+  if (isShown(it)) add(`hide this ${kind}`, () => hideItems([id]));
+  else add(`unhide this ${kind}`, () => unhideItems([id]));
+  if (sel && selected.size > 1) {
+    add(`hide all ${selected.size.toLocaleString()} selected`, () => hideItems([...selected]));
+    if (peek) add(`unhide all ${selected.size.toLocaleString()} selected`, () => unhideItems([...selected]));
+  }
+  const linkBtn = add("copy link", () => {});
+  ctxMenu.appendChild(document.createElement("hr"));
+  const hideBtn = add("hide photos in this folder", () => {});
+  const openBtn = add("show this folder in files view", () => {});
+  linkBtn.disabled = hideBtn.disabled = openBtn.disabled = true;
+
+  // Place the menu at the pointer, kept on screen.
+  ctxMenu.classList.add("open");
+  const r = ctxMenu.getBoundingClientRect();
+  ctxMenu.style.left = Math.max(4, Math.min(x, window.innerWidth - r.width - 4)) + "px";
+  ctxMenu.style.top = Math.max(4, Math.min(y, window.innerHeight - r.height - 4)) + "px";
+
+  // The grid only knows folder numbers; ask the server which file this is to name its folder.
+  const info = await fetch(`${API}/item/${id}`).then((res) => res.json()).catch(() => ({}));
+  if (!ctxMenu.classList.contains("open") || !info.path) return;
+  const folder = folderOf(info.path);
+  let fi = data.folders.indexOf(folder);
+  if (fi < 0 || !it[6].includes(fi)) fi = it[6][0];
+  const name = shortFolder(data.folders[fi]);
+  head.querySelector("b").textContent = name;
+  head.querySelector("b").title = data.folders[fi];
+  hideBtn.textContent = `hide photos in "${name}"`;
+  linkBtn.disabled = hideBtn.disabled = openBtn.disabled = false;
+  linkBtn.onclick = () => {
+    closeCtx();
+    copyLink(info.key);
+  };
+  hideBtn.onclick = () => {
+    closeCtx();
+    hideFolders([fi], name);
+  };
+  openBtn.onclick = () => {
+    closeCtx();
+    location.href = `/archive/files.html?path=${encodeURIComponent(folder)}`;
+  };
+}
+canvas.addEventListener("contextmenu", (e) => {
+  const t = e.target.closest(".tile");
+  if (!t) return;
+  e.preventDefault();
+  openCtx(+t.dataset.idx, e.clientX, e.clientY);
+});
+// Long-press opens the same menu on phones (iPhones don't send contextmenu).
+let pressTimer = null;
+let pressStart = null;
+canvas.addEventListener("touchstart", (e) => {
+  const t = e.target.closest(".tile");
+  suppressClick = menuJustClosed; // a tap that dismisses the menu shouldn't also open a photo
+  if (!t || e.touches.length > 1) return;
+  pressStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  pressTimer = setTimeout(() => {
+    suppressClick = true;
+    openCtx(+t.dataset.idx, pressStart.x, pressStart.y);
+  }, 550);
+}, { passive: true });
+canvas.addEventListener("touchmove", (e) => {
+  if (pressStart && Math.hypot(e.touches[0].clientX - pressStart.x, e.touches[0].clientY - pressStart.y) > 10) clearTimeout(pressTimer);
+}, { passive: true });
+canvas.addEventListener("touchend", () => clearTimeout(pressTimer));
+document.addEventListener("mousedown", (e) => {
+  if (!ctxMenu.contains(e.target)) closeCtx();
+});
+// Runs before the grid's own touchstart, so it can tell it this tap only closed the menu.
+let menuJustClosed = false;
+document.addEventListener("touchstart", (e) => {
+  menuJustClosed = ctxMenu.classList.contains("open") && !ctxMenu.contains(e.target);
+  if (menuJustClosed) closeCtx();
+}, { capture: true, passive: true });
+scroller.addEventListener("scroll", closeCtx);
+window.addEventListener("blur", closeCtx);
+
+let toastTimer = null;
+function showToast(msg, undo) {
+  const toast = document.getElementById("toast");
+  document.getElementById("toastMsg").textContent = msg;
+  const btn = document.getElementById("toastUndo");
+  btn.style.display = undo ? "" : "none";
+  btn.onclick = () => {
+    toast.classList.remove("show");
+    undo();
+  };
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 8000);
+}
+
+// ---------- lightbox ----------
+const lightbox = document.getElementById("lightbox");
+const lbContent = document.getElementById("lbContent");
+let lbList = [];          // what the arrows step through: the timeline, or just a shared photo
+let lbIdx = -1;
+let lbKey = null;         // share key of the photo on screen
+const BROWSER_VIDEO = /\.(mp4|m4v|mov)$/i;
+
+function shareUrl(key) {
+  return `${location.origin}/archive/?p=${key}`;
+}
+// The address bar always holds the open photo's share link. Opening from the grid adds a
+// history entry, so the phone's back button closes the photo instead of leaving the site.
+function setUrl(key) {
+  const url = key ? `/archive/?p=${key}` : "/archive/";
+  if (key && !history.state?.lb && lbList === visible) history.pushState({ lb: 1 }, "", url);
+  else history.replaceState(history.state, "", url);
+}
+
+function openLightbox(idx) {
+  openLbList(visible, idx);
+}
+function openLbList(list, idx) {
+  lbList = list;
+  lbIdx = idx;
+  lightbox.classList.add("open");
+  lightbox.classList.toggle("single", list.length < 2);
+  showLb();
+}
+async function showLb() {
+  const it = lbList[lbIdx];
+  if (!it) return;
+  const id = it[0];
+  document.getElementById("lbDate").textContent = fmtFull(it);
+  document.getElementById("lbWhere").textContent = "";
+  document.getElementById("lbDownload").href = `${API}/m/${id}?download=1`;
+  document.getElementById("lbSelect").textContent = selected.has(id) ? "unselect" : "select";
+  const hideBtn = document.getElementById("lbHide");
+  hideBtn.textContent = `${isShown(it) ? "hide" : "unhide"} ${it[5] ? "video" : "photo"}`;
+  lbKey = null;
+  lbContent.innerHTML = "";
+  lbStage.classList.add("loading");
+  const info = await fetch(`${API}/item/${id}`).then((r) => r.json()).catch(() => ({}));
+  if (lbList[lbIdx] !== it || !lightbox.classList.contains("open")) return;
+  if (info.key) {
+    lbKey = info.key;
+    setUrl(info.key);
+  }
+  const folder = (info.path || "").split("/").slice(0, -1).join("/");
+  document.getElementById("lbWhere").textContent = info.path ? info.path : "";
+  document.getElementById("lbFolder").href = `/archive/files.html?path=${encodeURIComponent(folder)}`;
+  if (it[5]) {
+    if (BROWSER_VIDEO.test(info.path || "")) {
+      lbContent.innerHTML = `<video controls autoplay playsinline poster="${API}/t/${id}?s=1200" src="${API}/m/${id}"></video>`;
+      const v = lbContent.querySelector("video");
+      v.onloadeddata = loaded;
+      // Some older .mov codecs won't play in browsers; offer the download instead.
+      v.onerror = () => noPlay(id);
+    } else {
+      noPlay(id);
+    }
+  } else {
+    const big = Math.min(2000, Math.round(Math.max(window.innerWidth, window.innerHeight) * (window.devicePixelRatio || 1) / 100) * 100);
+    lbContent.innerHTML = `<img src="${API}/t/${id}?s=${Math.min(big, 1600)}" alt="">`;
+    lbContent.querySelector("img").onload = lbContent.querySelector("img").onerror = loaded;
+  }
+  // Warm the next photo's preview so arrowing through feels instant.
+  const nxt = lbList[lbIdx + 1];
+  if (nxt && !nxt[5]) new Image().src = `${API}/t/${nxt[0]}?s=1600`;
+}
+function noPlay(id) {
+  lbContent.innerHTML = `<div class="novid"><img src="${API}/t/${id}?s=800" alt="">This video's format can't play in a web browser.<br>Use "download" to watch it on your computer.</div>`;
+  loaded();
+}
+// Spinner sits behind the photo/video until it has arrived.
+const lbStage = document.getElementById("lbStage");
+function loaded() {
+  lbStage.classList.remove("loading");
+}
+function lbStep(d) {
+  const n = lbIdx + d;
+  if (n < 0 || n >= lbList.length) return;
+  lbIdx = n;
+  showLb();
+}
+function closeLb() {
+  if (history.state?.lb) return history.back(); // popstate finishes the close
+  hideLb();
+  setUrl(null);
+}
+function hideLb() {
+  if (!lightbox.classList.contains("open")) return;
+  const it = lbList[lbIdx];
+  lightbox.classList.remove("open");
+  lbContent.innerHTML = "";
+  if (it) scrollToItemIfOffscreen(it[0]);
+  lbList = [];
+  lbIdx = -1;
+}
+window.addEventListener("popstate", () => {
+  if (!history.state?.lb) hideLb();
+});
+function scrollToItemIfOffscreen(id) {
+  const idx = visible.findIndex((v) => v[0] === id);
+  if (idx < 0) return;
+  const row = layout.find((r) => r.type === "tiles" && idx >= r.start && idx < r.end);
+  if (row && (row.top < scroller.scrollTop || row.top > scroller.scrollTop + scroller.clientHeight - tileSize)) {
+    scroller.scrollTop = row.top - 80;
+  }
+}
+
+async function copyLink(key) {
+  const url = shareUrl(key);
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("Link copied. Anyone with the archive login can open it.");
+  } catch {
+    prompt("Copy this link:", url);
+  }
+}
+
+document.getElementById("lbPrev").onclick = () => lbStep(-1);
+document.getElementById("lbNext").onclick = () => lbStep(1);
+document.getElementById("lbClose").onclick = closeLb;
+document.getElementById("lbLink").onclick = () => lbKey && copyLink(lbKey);
+// Hiding from the photo view moves on to the next photo, like deleting in Photos.
+document.getElementById("lbHide").onclick = async () => {
+  const it = lbList[lbIdx];
+  const id = it[0];
+  // Unhiding, or anything while looking inside a hidden folder, stays on the same photo.
+  if (!isShown(it)) {
+    await unhideItems([id]);
+    if (peek) lbList = visible;
+    return showLb();
+  }
+  if (peek) {
+    await hideItems([id]);
+    lbList = visible;
+    return showLb();
+  }
+  const fromTimeline = lbList === visible;
+  const next = lbList[lbIdx + 1] || lbList[lbIdx - 1];
+  await hideItems([id]);
+  if (!fromTimeline || !next) return closeLb();
+  lbList = visible;
+  lbIdx = visible.indexOf(next);
+  if (lbIdx < 0) return closeLb();
+  showLb();
+};
+document.getElementById("lbSelect").onclick = () => {
+  const id = lbList[lbIdx][0];
+  if (selected.has(id)) selected.delete(id); else selected.add(id);
+  document.getElementById("lbSelect").textContent = selected.has(id) ? "unselect" : "select";
+  syncSelection();
+};
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && ctxMenu.classList.contains("open")) return closeCtx();
+  if (!lightbox.classList.contains("open")) {
+    if (e.key === "Escape" && selecting) setSelecting(false);
+    else if (e.key === "Escape" && peek) endPeek();
+    return;
+  }
+  if (e.key === "Escape") closeLb();
+  if (e.key === "ArrowLeft") lbStep(-1);
+  if (e.key === "ArrowRight") lbStep(1);
+});
+// Swipe left/right on phones.
+let touchX = null;
+lightbox.addEventListener("touchstart", (e) => (touchX = e.touches[0].clientX), { passive: true });
+lightbox.addEventListener("touchend", (e) => {
+  if (touchX == null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 60 && !(e.target.tagName === "VIDEO")) lbStep(dx < 0 ? 1 : -1);
+  touchX = null;
+});
+
+// A shared link (?p=...) opens on just that photo; closing it reveals the normal timeline.
+async function openShared(key) {
+  const res = await fetch(`${API}/resolve/${encodeURIComponent(key)}`).catch(() => null);
+  const id = res && res.ok ? (await res.json()).id : -1;
+  const row = data.items.find((it) => it[0] === id);
+  if (!row) {
+    history.replaceState(null, "", "/archive/");
+    showToast("That shared photo couldn't be found. It may have been moved or renamed.");
+    return;
+  }
+  openLbList([row], 0);
+}
+
+// ---------- greeting ----------
+// Shown once per browser session when the server has a greeting for this login.
+function showGreeting(g) {
+  const seenKey = "archive-greeted-" + g.title;
+  if (sessionStorage.getItem(seenKey)) return;
+  sessionStorage.setItem(seenKey, "1");
+  const el = document.getElementById("greet");
+  el.querySelector("h2").textContent = g.title;
+  // Blank lines in the message separate paragraphs; the last one is the sign-off.
+  const msg = el.querySelector(".msg");
+  msg.innerHTML = "";
+  for (const para of (g.message || "").split(/\n\s*\n/)) {
+    const p = document.createElement("p");
+    p.textContent = para.trim();
+    msg.appendChild(p);
+  }
+  if (g.button) el.querySelector("button").textContent = g.button;
+  el.style.display = "flex";
+  requestAnimationFrame(() => el.classList.add("show"));
+  const close = () => {
+    el.classList.remove("show");
+    setTimeout(() => (el.style.display = "none"), 400);
+    document.removeEventListener("keydown", onKey);
+    running = false;
+  };
+  const onKey = (e) => e.key === "Escape" && close();
+  document.addEventListener("keydown", onKey);
+  el.querySelector("button").onclick = close;
+  el.onclick = (e) => e.target === el && close();
+
+  // Confetti, unless the device asks for less motion.
+  let running = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!running) return;
+  const cv = el.querySelector("canvas");
+  const ctx = cv.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const size = () => {
+    cv.width = innerWidth * dpr;
+    cv.height = innerHeight * dpr;
+  };
+  size();
+  const colors = ["#6fa3ee", "#f5c542", "#ef6f8e", "#7fd38a", "#ffffff", "#b48ef0"];
+  const bits = Array.from({ length: 180 }, () => ({
+    x: Math.random() * innerWidth,
+    y: -20 - Math.random() * innerHeight,
+    w: 6 + Math.random() * 6,
+    h: 8 + Math.random() * 8,
+    vy: 1.5 + Math.random() * 2.5,
+    vx: -1 + Math.random() * 2,
+    a: Math.random() * Math.PI,
+    va: -0.15 + Math.random() * 0.3,
+    c: colors[(Math.random() * colors.length) | 0],
+  }));
+  const started = performance.now();
+  (function frame(t) {
+    if (!running) return ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    const recycle = t - started < 6000; // keep it raining for a few seconds, then let it fall away
+    let alive = false;
+    for (const b of bits) {
+      b.x += b.vx + Math.sin((t / 600) + b.a) * 0.6;
+      b.y += b.vy;
+      b.a += b.va;
+      if (b.y > innerHeight + 20 && recycle) {
+        b.y = -20;
+        b.x = Math.random() * innerWidth;
+      }
+      if (b.y <= innerHeight + 20) alive = true;
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.a);
+      ctx.fillStyle = b.c;
+      ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h * Math.abs(Math.cos(b.a)));
+      ctx.restore();
+    }
+    if (alive) requestAnimationFrame(frame);
+  })(started);
+}
+
+// ---------- start ----------
+(async function init() {
+  try {
+    const res = await fetch(`${API}/timeline`);
+    if (!res.ok) throw new Error((await res.json()).error || res.statusText);
+    data = await res.json();
+  } catch (e) {
+    statusEl.textContent = `Couldn't load photos: ${e.message}`;
+    return;
+  }
+  rowById = new Map(data.items.map((it) => [it[0], it]));
+  me = await fetch(`${API}/me`).then((r) => r.json()).catch(() => me);
+  if (me.greeting) showGreeting(me.greeting);
+  if (me.admin) {
+    const note = document.getElementById("adminNote");
+    note.style.display = "";
+    note.innerHTML = `<b>Signed in as ${me.user}:</b> anything you hide or show here sets the default for everyone.`;
+  }
+  loadFolderState();
+  await loadHiddenItems();
+  buildTree();
+  setSidebar(window.innerWidth > 760 && localStorage.getItem("archive-sidebar") !== "closed");
+  applyFilter();
+  const shared = new URLSearchParams(location.search).get("p");
+  if (shared) openShared(shared);
+})();
+</script>
+</body>
+</html>

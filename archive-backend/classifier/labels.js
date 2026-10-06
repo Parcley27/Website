@@ -1,0 +1,23 @@
+// Zero-shot prompts; "group" says which hidden-by-default bucket a winning label feeds.
+module.exports = [
+  { group: "medical", text: "a clinical photo of a patient's bare chest or breasts taken at a doctor's office" },
+  { group: "medical", text: "a clinical photo of a patient's bare torso, abdomen or buttocks against a plain wall" },
+  { group: "medical", text: "a medical close-up of skin with a mole, lesion, rash, wound or scar" },
+  { group: "medical", text: "a photo of surgery in an operating room" },
+  { group: "medical", text: "a medical photo of a patient's face for cosmetic surgery" },
+  { group: "medical", text: "a medical photo of a hand or limb injury" },
+  { group: "document", text: "a photo of a paper document, form or printed list" },
+  { group: "document", text: "a screenshot of a phone or computer screen" },
+  { group: "ok", text: "a family photo of people smiling" },
+  { group: "ok", text: "a photo of children playing" },
+  { group: "ok", text: "a photo of kids swimming at a beach or pool" },
+  { group: "ok", text: "a photo of a baby" },
+  { group: "ok", text: "a vacation photo of a beach, mountains or a city" },
+  { group: "ok", text: "a photo of a house, a room or furniture" },
+  { group: "ok", text: "a photo of food or a meal" },
+  { group: "ok", text: "a photo of a pet or an animal" },
+  { group: "ok", text: "a photo of a sports event or game" },
+  { group: "ok", text: "a photo of a car, an object or a product" },
+  { group: "ok", text: "a selfie or portrait of a person's face" },
+  { group: "ok", text: "a photo of people at a party or celebration" },
+];

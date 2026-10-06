@@ -1,0 +1,21 @@
+{
+  "name": "archive-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "compression": "^1.8.2",
+    "exif-reader": "^2.0.3",
+    "express": "^5.2.1",
+    "mime-types": "^3.0.2",
+    "sharp": "^0.35.4"
+  }
+}
