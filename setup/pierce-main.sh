@@ -24,7 +24,13 @@ mkdir -p "$BACKUP_DIR"
 echo -e "${YELLOW}Creating backup of current main site...${NC}"
 BACKUP_NAME="main-backup-$(date +%Y%m%d-%H%M%S)"
 if [ -d "$MAIN_DIR" ] && [ "$(ls -A $MAIN_DIR)" ]; then
-    cp -r "$MAIN_DIR" "$BACKUP_DIR/$BACKUP_NAME"
+    # rsync rather than cp: backends write files (thumbnails, notes uploads) while this runs,
+    # and a file vanishing mid-copy made cp fail the whole deploy. Exit 24 = some files
+    # vanished, which is fine for a backup. Thumbnail cache and deps are rebuildable, so skip them.
+    rsync -a \
+        --exclude='archive-backend/.thumb-cache/' \
+        --exclude='node_modules/' \
+        "$MAIN_DIR/" "$BACKUP_DIR/$BACKUP_NAME/" || [ $? -eq 24 ]
     echo -e "${GREEN}Backup created: $BACKUP_DIR/$BACKUP_NAME${NC}"
 else
     echo -e "${YELLOW}No existing main site to backup${NC}"
