@@ -1,0 +1,14 @@
+[Unit]
+Description=Calendar proxy for board.pierceoxley.ca
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/board.pierceoxley.ca/backend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
