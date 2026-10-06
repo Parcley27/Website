@@ -14,7 +14,7 @@ Sign-in, schedules and the calendar feed for the house board.
     npm install
     npm test                                   # recurrence/DST, validation and password checks
     PASSWORD='the shared password' node init-users.js Pierce Alex Sam Jordan Riley Morgan
-    BOARD_STATIC=.. npm start                  # 127.0.0.1:4030, also serves the pages (dev)
+    BOARD_STATIC=.. npm start                  # 127.0.0.1:4033, also serves the pages (dev)
 
 `init-users.js` writes `data/users.json`: the people plus the password as a salted scrypt hash. The password itself is never stored.
 - Change the password for everyone: `PASSWORD='new one' node init-users.js --password-only`

@@ -1,4 +1,4 @@
-// Runs as board-backend.service on 127.0.0.1:4030
+// Runs as board-backend.service on 127.0.0.1:4033
 //
 // - Login by name + password (signed cookie). Members edit their own schedule; the "board" user only views.
 // - Serves the merged calendar for everyone: hand-entered events + (optionally) each person's public iCloud
@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const ical = require('node-ical');
 const { RRule } = require('rrule');
 
-const PORT = process.env.PORT || 4030;
+const PORT = process.env.PORT || 4033;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 const USERS_FILE = process.env.USERS_FILE || path.join(DATA_DIR, 'users.json');
 const FEEDS_FILE = process.env.FEEDS_FILE || path.join(__dirname, 'feeds.json');   // optional
