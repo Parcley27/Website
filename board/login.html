@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#6fa3ee">
+<title>House Board · Sign in</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --border: #d8d8d8;
+    --accent: #6fa3ee; --accent-dim: #6fa3ee99; --red: #e0453a;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--fg); font-family: var(--serif); font-size: 17px; line-height: 1.55; }
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  header.masthead { font-family: var(--mono); background: var(--accent); color: var(--fg); padding: 14px 24px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header.masthead .brand { font-size: 13px; }
+  header.masthead a { color: var(--fg); text-decoration: none; opacity: .75; font-size: 13px; }
+  header.masthead a:hover { opacity: 1; text-decoration: underline; }
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px 24px 80px; }
+  form { width: 100%; max-width: 360px; }
+  h1 { font-size: 32px; line-height: 1.25; margin: 0 0 6px; }
+  p.sub { margin: 0 0 28px; color: var(--fg-dim); }
+  label { display: block; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  input, button { font-family: var(--mono); }
+  input { width: 100%; padding: 12px 14px; margin: 0 0 18px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 16px; }
+  input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  button { width: 100%; padding: 13px; border: 1px solid var(--accent); border-radius: 3px; background: var(--accent); color: var(--fg); font-size: 15px; font-weight: 700; cursor: pointer; }
+  button:hover { border-color: var(--fg); }
+  button:disabled { opacity: .6; }
+  .err { min-height: 22px; margin: 0 0 12px; color: var(--red); font-family: var(--mono); font-size: 13px; }
+  .hint { margin-top: 22px; padding: 10px 14px; border: 1px solid var(--border); border-left: 3px solid var(--accent); background: var(--bg2); color: var(--fg-dim); font-family: var(--mono); font-size: 13px; }
+  .hint b { color: var(--fg); }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <span class="brand">board.pierceoxley.ca</span>
+  <nav><a href="https://pierceoxley.ca">home</a></nav>
+</header>
+<main>
+<form id="f">
+  <h1>House Board</h1>
+  <p class="sub">Sign in to edit your schedule.</p>
+  <label for="name">Name</label>
+  <input id="name" name="username" autocomplete="username" autocapitalize="words" autocorrect="off" required autofocus>
+  <label for="pw">Password</label>
+  <input id="pw" name="password" type="password" autocomplete="current-password" required>
+  <div class="err" id="err" role="alert"></div>
+  <button id="go">Sign in</button>
+  <p class="hint">On the wall display? Sign in as <b>board</b>.</p>
+</form>
+</main>
+<script>
+(function () {
+  var f = document.getElementById('f'), err = document.getElementById('err'), go = document.getElementById('go');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    err.textContent = ''; go.disabled = true;
+    fetch('api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+      body: JSON.stringify({ name: document.getElementById('name').value, password: document.getElementById('pw').value })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); }).then(function (r) {
+      if (!r.ok) { err.textContent = r.j.error || 'Could not sign in'; go.disabled = false; return; }
+      location.href = r.j.user.role === 'board' ? 'index.html' : 'update-board.html';
+    }).catch(function () { err.textContent = 'Could not reach the server'; go.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#6fa3ee">
+<title>House Board · My schedule</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --border: #d8d8d8;
+    --accent: #6fa3ee; --accent-dim: #6fa3ee99; --green: #1f9d5c; --red: #e0453a; --c: #6fa3ee;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--serif); font-size: 17px; line-height: 1.55; }
+  header.masthead { font-family: var(--mono); background: var(--accent); color: var(--fg); padding: 14px 24px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header.masthead .brand { font-size: 13px; }
+  header.masthead nav { display: flex; gap: 18px; }
+  header.masthead a, header.masthead button { color: var(--fg); text-decoration: none; opacity: .75; font-size: 13px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+  header.masthead a:hover, header.masthead button:hover { opacity: 1; text-decoration: underline; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 40px 24px 120px; }
+  h1 { font-size: 32px; line-height: 1.25; margin: 0 0 8px; }
+  h1 span { text-decoration: underline; text-decoration-color: var(--c); text-decoration-thickness: 3px; text-underline-offset: 5px; }
+  h2 { font-family: var(--mono); font-size: 16px; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin: 40px 0 14px; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--c); padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; }
+  .card .main { flex: 1; min-width: 0; }
+  .card b { display: block; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card small { color: var(--fg-dim); font-family: var(--mono); font-size: 12px; }
+  .card .when { font-family: var(--mono); font-size: 12px; color: var(--fg); margin-top: 3px; }
+  .days { display: flex; margin-top: 6px; }
+  .days i { font-style: normal; font-family: var(--mono); font-size: 11px; width: 21px; height: 21px; line-height: 19px; text-align: center; border-radius: 50%; margin-right: 3px; color: var(--fg-dim); border: 1px solid var(--border); background: var(--bg); }
+  .days i.on { background: var(--c); color: var(--fg); border-color: var(--c); font-weight: 700; }
+  .badge { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; background: rgba(224,69,58,.12); color: var(--red); margin-left: 8px; vertical-align: 2px; }
+  .card button { background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 3px; padding: 7px 12px; font-size: 13px; margin-left: 8px; cursor: pointer; }
+  .card button:hover { border-color: var(--accent); }
+  .empty { color: var(--fg-dim); font-style: italic; padding: 2px 2px 0; }
+  .profile { display: flex; align-items: center; flex-wrap: wrap; font-family: var(--mono); }
+  .profile label { display: flex; align-items: center; margin: 0 22px 8px 0; color: var(--fg-dim); font-size: 13px; }
+  .profile input[type=color] { width: 44px; height: 32px; border: 1px solid var(--border); background: var(--bg); border-radius: 3px; padding: 2px; margin-left: 10px; }
+  button, select, input { font-family: var(--mono); }
+  select, input[type=text], input[type=time], input[type=date] { padding: 10px 12px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 15px; }
+  select:focus, input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .profile select { margin-left: 8px; }
+  .fab { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--accent); color: var(--fg); border: 1px solid var(--accent); border-radius: 3px; padding: 14px 26px; font-size: 15px; font-weight: 700; box-shadow: 0 6px 24px rgba(0,0,0,.18); cursor: pointer; }
+  .fab:hover { border-color: var(--fg); }
+  .saved { color: var(--green); font-family: var(--mono); font-size: 13px; margin-left: 2px; margin-bottom: 8px; opacity: 0; transition: opacity .3s; }
+  .saved.on { opacity: 1; }
+
+  .veil { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26,26,26,.45); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
+  .veil.on { display: flex; }
+  .sheet { width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px 3px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
+  @media (min-width: 600px) { .veil { align-items: center; } .sheet { border-radius: 3px; } }
+  .sheet h3 { margin: 0 0 6px; font-size: 24px; line-height: 1.25; }
+  .sheet label.l { display: block; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 16px 0 6px; }
+  .sheet input[type=text] { width: 100%; }
+  .row { display: flex; }
+  .row > div { flex: 1; margin-right: 10px; }
+  .row > div:last-child { margin-right: 0; }
+  .row input { width: 100%; }
+  .seg { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .seg button { flex: 1; padding: 10px; background: var(--bg); border: 0; color: var(--fg-dim); font-size: 14px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button.on { background: var(--c); color: var(--fg); font-weight: 700; }
+  .dpick { display: flex; }
+  .dpick button { flex: 1; margin-right: 6px; padding: 11px 0; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-dim); font-size: 14px; cursor: pointer; }
+  .dpick button:last-child { margin-right: 0; }
+  .dpick button.on { background: var(--c); border-color: var(--c); color: var(--fg); font-weight: 700; }
+  .chk { display: flex; align-items: flex-start; margin-top: 18px; font-size: 16px; }
+  .chk input { width: 20px; height: 20px; margin: 3px 10px 0 0; flex: none; accent-color: var(--accent); }
+  .chk small { display: block; color: var(--fg-dim); font-family: var(--mono); font-size: 12px; }
+  .err { color: var(--red); min-height: 20px; margin-top: 12px; font-family: var(--mono); font-size: 13px; }
+  .btns { display: flex; margin-top: 8px; }
+  .btns button { flex: 1; padding: 13px; border-radius: 3px; font-size: 14px; font-weight: 700; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; margin-right: 8px; }
+  .btns button.go { background: var(--accent); border-color: var(--accent); flex: 2; margin-right: 0; }
+  .btns button:hover { border-color: var(--fg); }
+  .btns button.del { color: var(--red); flex: 1; }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <span class="brand">board.pierceoxley.ca/schedule</span>
+  <nav><a href="index.html">board</a><button id="out">sign out</button></nav>
+</header>
+<div class="wrap" id="app" style="display:none">
+  <h1>Hi <span id="who"></span></h1>
+
+  <h2>You</h2>
+  <div class="profile">
+    <label>Your colour <input type="color" id="color"></label>
+    <label>Birthday
+      <select id="bm"></select><select id="bd"></select>
+    </label>
+    <span class="saved" id="saved">Saved</span>
+  </div>
+
+  <h2>Every week</h2>
+  <div id="weekly"></div>
+  <h2>One-offs</h2>
+  <div id="once"></div>
+</div>
+<button class="fab" id="add" style="display:none">+ Add event</button>
+
+<div class="veil" id="veil">
+  <form class="sheet" id="form" autocomplete="off">
+    <h3 id="ftitle">Add event</h3>
+    <label class="l" for="t">What</label>
+    <input type="text" id="t" maxlength="60" placeholder="CPSC 221, Shift, Gym…" required>
+    <label class="l" for="w">Where <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+    <input type="text" id="w" maxlength="60" placeholder="DMP 110">
+    <div class="row">
+      <div><label class="l" for="s">Starts</label><input type="time" id="s" required></div>
+      <div><label class="l" for="e">Ends</label><input type="time" id="e" required></div>
+    </div>
+    <label class="l">Repeats</label>
+    <div class="seg"><button type="button" id="mw" class="on">Every week</button><button type="button" id="mo">Just one day</button></div>
+    <div id="pw" style="margin-top:12px"><div class="dpick" id="dp"></div></div>
+    <div id="po" style="margin-top:12px;display:none"><input type="date" id="d" style="width:100%"></div>
+    <label class="chk"><input type="checkbox" id="u"><span>This is a UBC class<small>Shows as cancelled on days UBC is closed, so it doesn't count as busy.</small></span></label>
+    <div class="err" id="ferr" role="alert"></div>
+    <div class="btns"><button type="button" id="cancel">Cancel</button><button type="button" class="del" id="del" style="display:none">Delete</button><button class="go" id="save">Save</button></div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'], MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var me = null, events = [], editing = null, mode = 'week', picked = {};
+
+  function api(method, url, body) {
+    return fetch('api/' + url, { method: method, credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) {
+        if (r.status === 401) { location.href = 'login.html'; return new Promise(function () {}); }
+        return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; });
+      });
+  }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function t12(s) { var h = +s.slice(0, 2), m = s.slice(3), x = h < 12 || h === 24 ? 'AM' : 'PM'; return ((h % 12) || 12) + (m === '00' ? '' : ':' + m) + ' ' + x; }
+
+  /* ---------- list ---------- */
+  function card(ev) {
+    var c = el('div', 'card'), main = el('div', 'main'), b = el('b', '', ev.title);
+    if (ev.ubc) b.appendChild(el('span', 'badge', 'CLASS'));
+    main.appendChild(b);
+    main.appendChild(el('small', '', t12(ev.start) + ' – ' + t12(ev.end) + (ev.where ? ' · ' + ev.where : '')));
+    if (ev.days) {
+      var d = el('div', 'days');
+      DAYS.forEach(function (l, i) { d.appendChild(el('i', ev.days.indexOf(i) > -1 ? 'on' : '', l)); });
+      main.appendChild(d);
+    } else {
+      var dt = new Date(ev.date + 'T12:00:00');
+      main.appendChild(el('div', 'when', ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()] + ' ' + MONTHS[dt.getMonth()] + ' ' + dt.getDate()));
+    }
+    var edit = el('button', '', 'Edit');
+    edit.addEventListener('click', function () { openSheet(ev); });
+    c.appendChild(main); c.appendChild(edit);
+    return c;
+  }
+  function render() {
+    var weekly = $('weekly'), once = $('once'), now = new Date(), today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);   // local, not UTC
+    weekly.textContent = ''; once.textContent = '';
+    var w = events.filter(function (e) { return e.days; }).sort(function (a, b) { return a.days[0] - b.days[0] || a.start.localeCompare(b.start); });
+    var o = events.filter(function (e) { return e.date && e.date >= today; }).sort(function (a, b) { return (a.date + a.start).localeCompare(b.date + b.start); });
+    w.forEach(function (e) { weekly.appendChild(card(e)); });
+    o.forEach(function (e) { once.appendChild(card(e)); });
+    if (!w.length) weekly.appendChild(el('div', 'empty', 'Nothing yet. Add your classes and regular shifts and they\'ll repeat every week.'));
+    if (!o.length) once.appendChild(el('div', 'empty', 'Nothing coming up. Add a one-off (a dentist appointment, a night out) for a single day.'));
+  }
+
+  /* ---------- sheet ---------- */
+  function setMode(m) {
+    mode = m;
+    $('mw').className = m === 'week' ? 'on' : ''; $('mo').className = m === 'once' ? 'on' : '';
+    $('pw').style.display = m === 'week' ? '' : 'none'; $('po').style.display = m === 'once' ? '' : 'none';
+  }
+  function drawDays() {
+    $('dp').textContent = '';
+    DAYS.forEach(function (l, i) {
+      var b = el('button', picked[i] ? 'on' : '', l); b.type = 'button';
+      b.addEventListener('click', function () { picked[i] = !picked[i]; drawDays(); });
+      $('dp').appendChild(b);
+    });
+  }
+  function openSheet(ev) {
+    editing = ev || null; picked = {};
+    $('ftitle').textContent = ev ? 'Edit event' : 'Add event';
+    $('t').value = ev ? ev.title : ''; $('w').value = ev ? ev.where || '' : '';
+    $('s').value = ev ? ev.start : ''; $('e').value = ev ? (ev.end === '24:00' ? '23:59' : ev.end) : '';
+    $('u').checked = !!(ev && ev.ubc); $('d').value = ev && ev.date ? ev.date : '';
+    (ev && ev.days ? ev.days : []).forEach(function (d) { picked[d] = true; });
+    setMode(ev && ev.date ? 'once' : 'week'); drawDays();
+    $('del').style.display = ev ? '' : 'none'; $('ferr').textContent = '';
+    $('veil').className = 'veil on';
+    if (!ev) $('t').focus();
+  }
+  function closeSheet() { $('veil').className = 'veil'; }
+
+  $('add').addEventListener('click', function () { openSheet(null); });
+  $('cancel').addEventListener('click', closeSheet);
+  $('veil').addEventListener('click', function (e) { if (e.target === $('veil')) closeSheet(); });
+  $('mw').addEventListener('click', function () { setMode('week'); });
+  $('mo').addEventListener('click', function () { setMode('once'); });
+
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var body = { title: $('t').value, where: $('w').value, start: $('s').value, end: $('e').value, ubc: $('u').checked };
+    if (mode === 'once') body.date = $('d').value;
+    else body.days = Object.keys(picked).filter(function (k) { return picked[k]; }).map(Number);
+    $('save').disabled = true;
+    (editing ? api('PUT', 'events/' + editing.id, body) : api('POST', 'events', body)).then(function (j) {
+      events = events.filter(function (x) { return !editing || x.id !== editing.id; }).concat([j.event]);
+      closeSheet(); render();
+    }).catch(function (err) { $('ferr').textContent = err.message; }).then(function () { $('save').disabled = false; });
+  });
+  $('del').addEventListener('click', function () {
+    if (!editing || !confirm('Delete "' + editing.title + '"?')) return;
+    api('DELETE', 'events/' + editing.id).then(function () {
+      events = events.filter(function (x) { return x.id !== editing.id; }); closeSheet(); render();
+    }).catch(function (err) { $('ferr').textContent = err.message; });
+  });
+
+  /* ---------- profile ---------- */
+  function flash() { $('saved').className = 'saved on'; setTimeout(function () { $('saved').className = 'saved'; }, 1200); }
+  function paint(color) { document.documentElement.style.setProperty('--c', color || '#4cc2ff'); }
+  function saveBirthday() {
+    var m = $('bm').value, d = $('bd').value;
+    api('PATCH', 'me', { birthday: m && d ? ('0' + m).slice(-2) + '-' + ('0' + d).slice(-2) : '' }).then(flash).catch(function (err) { alert(err.message); });
+  }
+  MONTHS.forEach(function (m, i) { var o = el('option', '', m); o.value = i + 1; $('bm').appendChild(o); });
+  $('bm').insertBefore(Object.assign(el('option', '', '—'), { value: '' }), $('bm').firstChild);
+  $('bd').appendChild(Object.assign(el('option', '', '—'), { value: '' }));
+  for (var i = 1; i <= 31; i++) { var o = el('option', '', i); o.value = i; $('bd').appendChild(o); }
+  $('bm').addEventListener('change', saveBirthday); $('bd').addEventListener('change', saveBirthday);
+  $('color').addEventListener('change', function () {
+    paint($('color').value);
+    api('PATCH', 'me', { color: $('color').value }).then(flash).catch(function (err) { alert(err.message); });
+  });
+  $('out').addEventListener('click', function () { api('POST', 'logout').then(function () { location.href = 'login.html'; }); });
+
+  /* ---------- boot ---------- */
+  api('GET', 'me').then(function (j) {
+    me = j.user;
+    if (me.role === 'board') { location.href = 'house.html'; return; }
+    $('who').textContent = me.name; paint(me.color); $('color').value = me.color || '#4cc2ff';
+    if (me.birthday) { $('bm').value = +me.birthday.slice(0, 2); $('bd').value = +me.birthday.slice(3); }
+    return api('GET', 'events').then(function (r) {
+      events = r.events; render();
+      $('app').style.display = ''; $('add').style.display = '';
+    });
+  }).catch(function (err) { document.body.textContent = err.message; });
+})();
+</script>
+</body>
+</html>

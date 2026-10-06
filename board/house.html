@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#6fa3ee">
+<title>House Board · Board settings</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --border: #d8d8d8;
+    --accent: #6fa3ee; --accent-dim: #6fa3ee99; --green: #1f9d5c; --red: #e0453a; --c: #6fa3ee;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--serif); font-size: 17px; line-height: 1.55; }
+  header.masthead { font-family: var(--mono); background: var(--accent); color: var(--fg); padding: 14px 24px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header.masthead .brand { font-size: 13px; }
+  header.masthead nav { display: flex; gap: 18px; }
+  header.masthead a, header.masthead button { color: var(--fg); text-decoration: none; opacity: .75; font-size: 13px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+  header.masthead a:hover, header.masthead button:hover { opacity: 1; text-decoration: underline; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; line-height: 1.25; margin: 0 0 8px; }
+  p.lead { margin: 0 0 6px; color: var(--fg-dim); }
+  .sec { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin: 40px 0 14px; }
+  h2 { margin: 0; font-family: var(--mono); font-size: 16px; }
+  .sec + p.lead { margin: -4px 0 12px; font-size: 15px; }
+  .add { background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 3px; padding: 5px 11px; font-size: 12px; cursor: pointer; }
+  .add:hover { border-color: var(--accent); }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--c); padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; }
+  .card .main { flex: 1; min-width: 0; }
+  .card b { display: block; font-size: 16px; overflow-wrap: anywhere; }
+  .card small { color: var(--fg-dim); font-family: var(--mono); font-size: 12px; display: block; margin-top: 2px; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; padding: 2px 6px; border-radius: 3px; background: var(--fg-dim); color: #fff; margin-right: 8px; vertical-align: 2px; }
+  .tag.FOOD { background: var(--green); } .tag.UNI { background: var(--red); } .tag.HOME { background: var(--accent); color: var(--fg); } .tag.EVENT { background: #8f6ad8; }
+  .badge { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; background: rgba(224,69,58,.12); color: var(--red); margin-left: 8px; vertical-align: 2px; }
+  .days { display: flex; margin-top: 6px; }
+  .days i { font-style: normal; font-family: var(--mono); font-size: 11px; width: 21px; height: 21px; line-height: 19px; text-align: center; border-radius: 50%; margin-right: 3px; color: var(--fg-dim); border: 1px solid var(--border); background: var(--bg); }
+  .days i.on { background: var(--c); color: var(--fg); border-color: var(--c); font-weight: 700; }
+  .card button.ed { background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 3px; padding: 7px 12px; font-size: 13px; margin-left: 8px; cursor: pointer; }
+  .card button.ed:hover { border-color: var(--accent); }
+  .empty { color: var(--fg-dim); font-style: italic; padding: 2px 2px 0; }
+  .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--fg); color: var(--bg); font-family: var(--mono); border-radius: 3px; padding: 9px 18px; font-size: 13px; opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .toast.on { opacity: 1; }
+
+  button, select, input { font-family: var(--mono); }
+  select, input[type=text], input[type=time], input[type=date] { padding: 10px 12px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 15px; }
+  select:focus, input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .veil { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26,26,26,.45); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
+  .veil.on { display: flex; }
+  .sheet { width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px 3px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
+  @media (min-width: 600px) { .veil { align-items: center; } .sheet { border-radius: 3px; } }
+  .sheet h3 { margin: 0 0 6px; font-size: 24px; line-height: 1.25; }
+  .sheet label.l { display: block; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 16px 0 6px; }
+  .sheet input[type=text], .sheet select { width: 100%; }
+  .row { display: flex; }
+  .row > div { flex: 1; margin-right: 10px; }
+  .row > div:last-child { margin-right: 0; }
+  .row input { width: 100%; }
+  .seg { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+  .seg button { flex: 1; padding: 10px; background: var(--bg); border: 0; color: var(--fg-dim); font-size: 14px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button.on { background: var(--accent); color: var(--fg); font-weight: 700; }
+  .dpick { display: flex; }
+  .dpick button { flex: 1; margin-right: 6px; padding: 11px 0; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-dim); font-size: 14px; cursor: pointer; }
+  .dpick button:last-child { margin-right: 0; }
+  .dpick button.on { background: var(--accent); border-color: var(--accent); color: var(--fg); font-weight: 700; }
+  .chk { display: flex; align-items: flex-start; margin-top: 18px; font-size: 16px; }
+  .chk input { width: 20px; height: 20px; margin: 3px 10px 0 0; flex: none; accent-color: var(--accent); }
+  .chk small { display: block; color: var(--fg-dim); font-family: var(--mono); font-size: 12px; }
+  .err { color: var(--red); min-height: 20px; margin-top: 12px; font-family: var(--mono); font-size: 13px; }
+  .btns { display: flex; margin-top: 8px; }
+  .btns button { flex: 1; padding: 13px; border-radius: 3px; font-size: 14px; font-weight: 700; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; margin-right: 8px; }
+  .btns button.go { background: var(--accent); border-color: var(--accent); flex: 2; margin-right: 0; }
+  .btns button:hover { border-color: var(--fg); }
+  .btns button.del { color: var(--red); }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <span class="brand">board.pierceoxley.ca/settings</span>
+  <nav><a href="index.html">board</a><button id="out">sign out</button></nav>
+</header>
+<div class="wrap" id="app" style="display:none">
+  <h1>Board settings</h1>
+  <p class="lead">What the wall display shows for everyone. Changes appear on the board within about two minutes.</p>
+
+  <div class="sec"><h2>Ticker messages</h2><button class="add" data-add="notice">+ Add</button></div>
+  <div id="notices"></div>
+
+  <div class="sec"><h2>Weekly chores</h2><button class="add" data-add="chore">+ Add</button></div>
+  <div id="chores"></div>
+
+  <div class="sec"><h2>Days off &amp; closures</h2><button class="add" data-add="closure">+ Add</button></div>
+  <p class="lead">Reading break, exam-week closures, anything that isn't on the built-in holiday list.</p>
+  <div id="closures"></div>
+</div>
+<div class="toast" id="toast">Saved</div>
+
+<div class="veil" id="veil">
+  <form class="sheet" id="form" autocomplete="off">
+    <h3 id="ftitle"></h3>
+
+    <div data-for="notice closure chore">
+      <label class="l" for="t" id="tl">What</label>
+      <input type="text" id="t" maxlength="140" required>
+    </div>
+
+    <div data-for="notice">
+      <label class="l" for="tag">Label</label>
+      <select id="tag"><option>INFO</option><option>FOOD</option><option>UNI</option><option>HOME</option><option>EVENT</option></select>
+      <label class="l">When</label>
+      <div class="seg"><button type="button" id="wa" class="on">Always</button><button type="button" id="wd">On a date</button></div>
+    </div>
+
+    <div data-for="notice closure" id="datebox">
+      <label class="l" for="d">Date</label>
+      <input type="date" id="d" style="width:100%">
+    </div>
+
+    <div data-for="notice" id="timebox">
+      <div class="row">
+        <div><label class="l" for="f">From <span style="text-transform:none;letter-spacing:0">(optional)</span></label><input type="time" id="f"></div>
+        <div><label class="l" for="to">Until</label><input type="time" id="to"></div>
+      </div>
+      <label class="l" for="ah">Start showing it</label>
+      <select id="ah"><option value="0">On the day</option><option value="1">1 day ahead</option><option value="2">2 days ahead</option><option value="3">3 days ahead</option><option value="7">A week ahead</option><option value="14">Two weeks ahead</option></select>
+    </div>
+
+    <div data-for="chore">
+      <label class="l">Days</label>
+      <div class="dpick" id="dp"></div>
+    </div>
+
+    <label class="chk" data-for="closure"><input type="checkbox" id="u"><span>UBC is closed<small>Classes show as cancelled that day and don't count as busy.</small></span></label>
+
+    <div class="err" id="ferr" role="alert"></div>
+    <div class="btns"><button type="button" id="cancel">Cancel</button><button type="button" class="del" id="del">Delete</button><button class="go" id="save">Save</button></div>
+  </form>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'], DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var house = { notices: [], chores: [], closures: [] }, kind = '', editing = null, picked = {}, when = 'always';
+
+  function api(method, url, body) {
+    return fetch('api/' + url, { method: method, credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) {
+        if (r.status === 401) { location.href = 'login.html'; return new Promise(function () {}); }
+        return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong'); return j; });
+      });
+  }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function t12(s) { var h = +s.slice(0, 2), m = s.slice(3); return ((h % 12) || 12) + (m === '00' ? '' : ':' + m) + (h < 12 ? 'a' : 'p'); }
+  function dstr(s) { var d = new Date(s + 'T12:00:00'); return DN[d.getDay()] + ' ' + MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+
+  /* ---------- lists ---------- */
+  function card(kindName, item, build) {
+    var c = el('div', 'card'), main = el('div', 'main');
+    build(main, item);
+    var b = el('button', 'ed', 'Edit'); b.addEventListener('click', function () { openSheet(kindName, item); });
+    c.appendChild(main); c.appendChild(b);
+    return c;
+  }
+  function render() {
+    var n = $('notices'), c = $('chores'), x = $('closures'), now = new Date(), today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);   // local, not UTC
+    n.textContent = c.textContent = x.textContent = '';
+    house.notices.forEach(function (it) {
+      n.appendChild(card('notice', it, function (m, i) {
+        var b = el('b'); b.appendChild(el('span', 'tag ' + i.tag, i.tag)); b.appendChild(document.createTextNode(i.text)); m.appendChild(b);
+        var s = 'Always shown';
+        if (i.date) s = dstr(i.date) + (i.from ? ' · ' + t12(i.from) + '–' + t12(i.to) : '') + (i.ahead ? ' · shows ' + i.ahead + ' day' + (i.ahead > 1 ? 's' : '') + ' ahead' : '') + (i.date < today ? ' · over' : '');
+        m.appendChild(el('small', '', s));
+      }));
+    });
+    if (!house.notices.length) n.appendChild(el('div', 'empty', 'Nothing scrolling except birthdays, holidays and weather. Add a message for the ticker.'));
+    house.chores.forEach(function (it) {
+      c.appendChild(card('chore', it, function (m, i) {
+        m.appendChild(el('b', '', i.text));
+        var d = el('div', 'days'); DAYS.forEach(function (l, k) { d.appendChild(el('i', i.days.indexOf(k) > -1 ? 'on' : '', l)); }); m.appendChild(d);
+      }));
+    });
+    if (!house.chores.length) c.appendChild(el('div', 'empty', 'No chores yet. They show on the ticker on the day (and the evening before).'));
+    house.closures.slice().sort(function (a, b) { return a.date.localeCompare(b.date); }).forEach(function (it) {
+      x.appendChild(card('closure', it, function (m, i) {
+        var b = el('b', '', i.name); if (i.ubc) b.appendChild(el('span', 'badge', 'UBC CLOSED')); m.appendChild(b);
+        m.appendChild(el('small', '', dstr(i.date) + (i.date < today ? ' · over' : '')));
+      }));
+    });
+    if (!house.closures.length) x.appendChild(el('div', 'empty', 'None added.'));
+  }
+
+  /* ---------- sheet ---------- */
+  function setWhen(w) {
+    when = w; $('wa').className = w === 'always' ? 'on' : ''; $('wd').className = w === 'date' ? 'on' : '';
+    $('datebox').className = kind === 'closure' || (kind === 'notice' && w === 'date') ? '' : 'hide';
+    $('timebox').className = kind === 'notice' && w === 'date' ? '' : 'hide';
+  }
+  function drawDays() {
+    $('dp').textContent = '';
+    DAYS.forEach(function (l, i) {
+      var b = el('button', picked[i] ? 'on' : '', l); b.type = 'button';
+      b.addEventListener('click', function () { picked[i] = !picked[i]; drawDays(); });
+      $('dp').appendChild(b);
+    });
+  }
+  function openSheet(k, it) {
+    kind = k; editing = it || null; picked = {};
+    var names = { notice: 'ticker message', chore: 'chore', closure: 'day off' };
+    $('ftitle').textContent = (it ? 'Edit ' : 'Add ') + names[k];
+    Array.prototype.forEach.call(document.querySelectorAll('[data-for]'), function (n) {
+      var on = n.getAttribute('data-for').split(' ').indexOf(k) > -1;
+      if (n.id !== 'datebox' && n.id !== 'timebox') n.className = (n.className.replace(/\bhide\b/, '') + (on ? '' : ' hide')).trim();
+    });
+    $('tl').textContent = k === 'closure' ? 'Name' : k === 'chore' ? 'Chore' : 'Message';
+    $('t').placeholder = k === 'closure' ? 'Reading break' : k === 'chore' ? 'Garbage & recycling go out tonight' : 'Free BBQ at the AMS Nest';
+    $('t').value = it ? (it.text || it.name) : '';
+    $('tag').value = it && it.tag ? it.tag : 'INFO';
+    $('d').value = it && it.date ? it.date : ''; $('f').value = it && it.from || ''; $('to').value = it && it.to || '';
+    $('ah').value = it && it.ahead ? it.ahead : 0; $('u').checked = !!(it && it.ubc);
+    (it && it.days ? it.days : []).forEach(function (d) { picked[d] = true; });
+    drawDays(); setWhen(k === 'notice' ? (it && it.date ? 'date' : 'always') : 'date');
+    $('del').className = it ? 'del' : 'del hide'; $('ferr').textContent = '';
+    $('veil').className = 'veil on';
+    if (!it) $('t').focus();
+  }
+  function closeSheet() { $('veil').className = 'veil'; }
+
+  function save(mutate, done) {
+    var copy = JSON.parse(JSON.stringify(house)); mutate(copy);
+    return api('PUT', 'house', copy).then(function (j) {
+      house = j.house; render(); done && done();
+      $('toast').className = 'toast on'; setTimeout(function () { $('toast').className = 'toast'; }, 1200);
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-add]'), function (b) { b.addEventListener('click', function () { openSheet(b.getAttribute('data-add'), null); }); });
+  $('cancel').addEventListener('click', closeSheet);
+  $('veil').addEventListener('click', function (e) { if (e.target === $('veil')) closeSheet(); });
+  $('wa').addEventListener('click', function () { setWhen('always'); });
+  $('wd').addEventListener('click', function () { setWhen('date'); });
+
+  var LIST = { notice: 'notices', chore: 'chores', closure: 'closures' };
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var item = {};
+    if (editing) item.id = editing.id;
+    if (kind === 'notice') {
+      item.text = $('t').value; item.tag = $('tag').value;
+      if (when === 'date') { item.date = $('d').value; item.from = $('f').value; item.to = $('to').value; item.ahead = +$('ah').value; }
+    } else if (kind === 'chore') {
+      item.text = $('t').value; item.days = Object.keys(picked).filter(function (k) { return picked[k]; }).map(Number);
+    } else { item.name = $('t').value; item.date = $('d').value; item.ubc = $('u').checked; }
+    $('save').disabled = true;
+    save(function (h) {
+      var list = h[LIST[kind]], i = editing ? list.findIndex(function (x) { return x.id === editing.id; }) : -1;
+      if (i > -1) list[i] = item; else list.push(item);
+    }, closeSheet).catch(function (err) { $('ferr').textContent = err.message; }).then(function () { $('save').disabled = false; });
+  });
+  $('del').addEventListener('click', function () {
+    if (!editing || !confirm('Delete this?')) return;
+    save(function (h) { h[LIST[kind]] = h[LIST[kind]].filter(function (x) { return x.id !== editing.id; }); }, closeSheet)
+      .catch(function (err) { $('ferr').textContent = err.message; });
+  });
+  $('out').addEventListener('click', function () { api('POST', 'logout').then(function () { location.href = 'login.html'; }); });
+
+  /* ---------- boot ---------- */
+  api('GET', 'me').then(function (j) {
+    if (j.user.role !== 'board') { location.href = 'update-board.html'; return; }
+    return api('GET', 'house').then(function (r) { house = r.house; render(); $('app').style.display = ''; });
+  }).catch(function (err) { document.body.textContent = err.message; });
+})();
+</script>
+</body>
+</html>
