@@ -40,9 +40,10 @@ if [ -d "$BETA_DIR/board" ]; then
     echo -e "${YELLOW}Syncing board site...${NC}"
     mkdir -p "$BOARD_DIR/backend"
     rsync -a --delete --exclude='backend/' "$BETA_DIR/board/" "$BOARD_DIR/"
-    BACKEND_CHANGES=$(rsync -a --delete -i --exclude='README.md' \
+    # -rlt (no perms/owner) and only ">f" lines, so only changed file contents trigger a restart.
+    BACKEND_CHANGES=$(rsync -rlt --delete -i --exclude='README.md' \
         --exclude='data/' --exclude='node_modules/' --exclude='feeds.json' \
-        "$BETA_DIR/board/backend/" "$BOARD_DIR/backend/")
+        "$BETA_DIR/board/backend/" "$BOARD_DIR/backend/" | grep '^>f' || true)
     cp -f "$BETA_DIR/board/backend/README.md" "$BOARD_DIR/backend/README.md"
     find "$BOARD_DIR" -path "$BOARD_DIR/backend/data" -prune -o -path "$BOARD_DIR/backend/node_modules" -prune -o -exec chown www-data:www-data {} +
     find "$BOARD_DIR" -path "$BOARD_DIR/backend/data" -prune -o -path "$BOARD_DIR/backend/node_modules" -prune -o -type d -exec chmod 755 {} + -o -type f -exec chmod 644 {} +
