@@ -753,10 +753,9 @@ function setupFullscreen() {
 
 /* =====================================================================
    TV fit
-   The iPad is mirrored to the living-room TV, which is zoomed so the picture fills its height and
-   loses a strip off each side. For the board login in full screen, the board is laid out inside a
-   centred frame only as wide as the part the TV actually shows (black outside it).
-   The width is a per-device setting (hold the clock to change it). ?tv=88 forces the frame on at 88%
+   The old TV is not 16:9, so for the board login in full screen the board is laid out in a centred
+   16:9 frame: width first, height from the ratio, black outside it.
+   The width share is a per-device setting (hold the clock to change it, default 100%). ?tv=88 forces the frame on at 88%
    on any device, for testing; ?tv=off forces it off.
    ===================================================================== */
 var store = {
@@ -764,7 +763,7 @@ var store = {
   set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 };
 var ROLE = store.get('board.role');   // remembered so the frame still applies if /api/me can't be reached
-var TV_DEFAULT = 90;
+var TV_DEFAULT = 100;
 var tvParam = /[?&]tv=([^&]+)/.exec(location.search);
 tvParam = tvParam ? tvParam[1] : null;
 function tvWidth() {
@@ -788,9 +787,19 @@ function loadMe() {
 // size the frame, and the rem from it. Landscape is designed around 4:3; wider screens are limited by height.
 var frame = $('frame');
 function fit() {
-  var on = tvOn(), side = on ? (100 - tvWidth()) / 2 + '%' : '';
-  frame.style.left = side; frame.style.right = side;
+  var on = tvOn();
   document.body.classList.toggle('tv', on);
+  if (on) {
+    // TV frame is 16:9: fill the width (TV-fit setting), take the height from the ratio, centre it.
+    // If that is taller than the screen, fill the height and take the width from the ratio instead.
+    var sw = window.innerWidth, sh = window.innerHeight, fw = sw * tvWidth() / 100, fh = fw * 9 / 16;
+    if (fh > sh) { fh = sh; fw = sh * 16 / 9; }
+    var x = (sw - fw) / 2, y = (sh - fh) / 2;
+    frame.style.left = x + 'px'; frame.style.right = x + 'px';
+    frame.style.top = y + 'px'; frame.style.bottom = y + 'px';
+  } else {
+    frame.style.left = frame.style.right = frame.style.top = frame.style.bottom = '';
+  }
   var w = frame.clientWidth, h = frame.clientHeight, portrait = w < h;
   document.body.classList.toggle('portrait', portrait);
   de.style.fontSize = (portrait ? Math.min(w, h) * .026 : Math.min(h / 50, w / 66)) + 'px';
