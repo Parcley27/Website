@@ -71,31 +71,8 @@ rsync -av --delete \
 # locks the services out of their own data, so skip them.
 find "$MAIN_DIR" \( -path "$MAIN_DIR/ig-backend" -o -path "$MAIN_DIR/archive-backend" -o -path "$MAIN_DIR/notes-backend" \) -prune \
     -o -exec chown www-data:www-data {} + -exec chmod 755 {} +
-# board.pierceoxley.ca is its own site in its own directory (board-backend.service, port 4033),
-# so promoting beta into MAIN_DIR never updated it. data/ (users, events, signing key),
-# node_modules and feeds.json only exist live and are left alone.
-if [ -d "$BETA_DIR/board" ]; then
-    echo -e "${YELLOW}Syncing board site...${NC}"
-    mkdir -p "$BOARD_DIR/backend"
-    rsync -a --delete --exclude='backend/' "$BETA_DIR/board/" "$BOARD_DIR/"
-    BACKEND_CHANGES=$(rsync -a --delete -i \
-        --exclude='data/' --exclude='node_modules/' --exclude='feeds.json' \
-        "$BETA_DIR/board/backend/" "$BOARD_DIR/backend/")
-    find "$BOARD_DIR" -path "$BOARD_DIR/backend/data" -prune -o -path "$BOARD_DIR/backend/node_modules" -prune -o -exec chown www-data:www-data {} +
-    find "$BOARD_DIR" -path "$BOARD_DIR/backend/data" -prune -o -path "$BOARD_DIR/backend/node_modules" -prune -o -type d -exec chmod 755 {} + -o -type f -exec chmod 644 {} +
-    if [ -n "$BACKEND_CHANGES" ]; then
-        echo -e "${YELLOW}Board backend changed; updating dependencies and restarting...${NC}"
-        (cd "$BOARD_DIR/backend" && sudo -u www-data env HOME=/tmp npm_config_cache=/tmp/www-npm-cache npm ci --omit=dev --no-audit --no-fund >/dev/null 2>&1) || echo -e "${RED}npm ci failed for board backend${NC}"
-        systemctl restart board-backend
-    fi
-    echo -e "${GREEN}Board site synced${NC}"
-fi
-
-echo -e "${YELLOW}Syncing terminal frontend...${NC}"
-rsync -av --delete --exclude='backend/' "$BETA_DIR/terminal/" "$TERMINAL_DIR/"
-chown -R www-data:www-data "$TERMINAL_DIR"
-chmod -R 755 "$TERMINAL_DIR"
-echo -e "${GREEN}Terminal frontend synced${NC}"
+# Terminal frontend, board and git mirror live outside MAIN_DIR; one shared script deploys them.
+/usr/local/bin/pierce-sync-subsites.sh
 
 echo -e "${YELLOW}Testing nginx configuration...${NC}"
 nginx -t

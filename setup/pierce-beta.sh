@@ -27,11 +27,8 @@ git fetch origin main
 echo -e "${YELLOW}Pulling latest changes from GitHub...${NC}"
 git reset --hard origin/main
 echo -e "${GREEN}Repository updated successfully${NC}"
-echo -e "${YELLOW}Syncing terminal frontend...${NC}"
-rsync -av --delete --exclude='backend/' "$BETA_DIR/terminal/" "$TERMINAL_DIR/"
-chown -R www-data:www-data "$TERMINAL_DIR"
-chmod -R 755 "$TERMINAL_DIR"
-echo -e "${GREEN}Terminal frontend synced${NC}"
+# Terminal frontend, board and git mirror have no beta copy, so they go live here.
+/usr/local/bin/pierce-sync-subsites.sh
 
 echo -e "${YELLOW}Setting proper permissions...${NC}"
 chown -R www-data:www-data .
