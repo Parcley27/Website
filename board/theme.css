@@ -1,0 +1,20 @@
+/* shared by every board page: palette, font, and the accent that follows the signed-in person.
+   theme.js sets data-theme (light/dark, auto by sunrise and sunset) and --accent/--ink/--accent-text */
+:root {
+  --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --faint: #a3a3a3;
+  --border: #d8d8d8; --line: #ececec;
+  --accent: #6fa3ee; --accent-dim: #6fa3ee99; --ink: #1a1a1a; --accent-text: #2f6fc7;
+  --green: #1f9d5c; --green-bg: rgba(31,157,92,.09); --green-line: rgba(31,157,92,.45); --red: #e0453a;
+  --veil: rgba(255,255,255,.6); --hatch: rgba(0,0,0,.03); --shade: rgba(26,26,26,.45);
+  --font: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --mono: var(--font); --serif: var(--font);
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #141414; --bg2: #1e1e1e; --fg: #e6e6e6; --fg-dim: #9a9a9a; --faint: #5c5c5c;
+  --border: #333333; --line: #262626;
+  --green: #3fbf7f; --green-bg: rgba(63,191,127,.1); --green-line: rgba(63,191,127,.45); --red: #ef5b50;
+  --veil: rgba(20,20,20,.6); --hatch: rgba(255,255,255,.035); --shade: rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+:root { --cink: #1a1a1a; }

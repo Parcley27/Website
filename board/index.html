@@ -9,35 +9,14 @@
 <meta name="apple-mobile-web-app-title" content="House Board">
 <meta name="theme-color" content="#6fa3ee">
 <title>House Board</title>
-<script>
-// pick the theme before first paint: saved choice, else the system setting
-(function () {
-  var t; try { t = localStorage.getItem('board.theme'); } catch (e) {}
-  if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js"></script>
 <style>
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --faint: #a3a3a3;
-    --border: #d8d8d8; --line: #ececec;
-    --accent: #6fa3ee; --accent-dim: #6fa3ee99; --ink: #1a1a1a;
-    --green: #1f9d5c; --green-bg: rgba(31,157,92,.09); --green-line: rgba(31,157,92,.45); --red: #e0453a;
-    --veil: rgba(255,255,255,.6); --hatch: rgba(0,0,0,.03);
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  }
-  :root[data-theme="dark"] {
-    --bg: #141414; --bg2: #1e1e1e; --fg: #e6e6e6; --fg-dim: #9a9a9a; --faint: #5c5c5c;
-    --border: #333333; --line: #262626;
-    --green: #3fbf7f; --green-bg: rgba(63,191,127,.1); --green-line: rgba(63,191,127,.45); --red: #ef5b50;
-    --veil: rgba(20,20,20,.6); --hatch: rgba(255,255,255,.035);
-  }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   /* everything is sized in rem; fit() sets the rem from the frame size so it fits a TV, an old iPad, or a laptop */
   html { font-size: 2vmin; background: var(--bg); }
   html, body { margin: 0; height: 100%; overflow: hidden; }
-  body { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); color: var(--fg); font-family: var(--serif); font-size: 1rem; line-height: 1.25;
+  body { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 1rem; line-height: 1.25;
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-font-smoothing: antialiased; }
   /* the frame is the whole screen, except for the board login in full screen, where it shrinks to the part the TV shows */
   #frame { position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: grid; grid-template-rows: auto auto 1fr auto; background: var(--bg); overflow: hidden; }
@@ -45,7 +24,7 @@
   .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   body.kiosk { cursor: none; }
   body.kiosk .chrome { display: none !important; }
-  .lab { font-family: var(--mono); font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); text-transform: uppercase; }
+  .lab { font-family: var(--mono); font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--accent-text); text-transform: uppercase; }
 
   /* ---------- masthead (the FLICKER band) ---------- */
   .masthead { display: flex; align-items: baseline; justify-content: space-between; padding: .5rem 1rem; background: var(--accent); color: var(--ink); font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
@@ -58,26 +37,36 @@
   /* ---------- title row: clock, date, everyone-free, UBC status ---------- */
   .top { display: flex; align-items: center; padding: .7rem 1rem .65rem; border-bottom: 2px solid var(--accent); }
   .clock { display: flex; align-items: baseline; white-space: nowrap; }
-  .clock .hm { font-family: var(--serif); font-size: 3.6rem; font-weight: 700; letter-spacing: -.02em; line-height: .95; font-variant-numeric: lining-nums tabular-nums; }
+  .clock .hm { font-family: var(--font); font-size: 3.3rem; font-weight: 700; letter-spacing: -.02em; line-height: .95; font-variant-numeric: lining-nums tabular-nums; }
   .clock .sec { font-family: var(--mono); font-size: 1.2rem; margin-left: .35rem; color: var(--fg-dim); }
   .clock .mer { font-family: var(--mono); font-size: .95rem; margin-left: .35rem; color: var(--fg-dim); }
-  .date { margin-left: 1.3rem; white-space: nowrap; }
-  .date b { display: block; font-size: 1.3rem; font-weight: 700; margin-top: .15rem; }
-  .allfree { flex: 1; min-width: 0; margin: 0 1.3rem; padding: .45rem .9rem .5rem; background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--faint); }
-  .allfree .v { font-size: 1.35rem; font-weight: 700; margin-top: .15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .allfree .s { font-family: var(--mono); font-size: .74rem; color: var(--fg-dim); margin-top: .1rem; }
-  .allfree.on { border-left-color: var(--green); }
-  .allfree.on .lab, .allfree.on .v { color: var(--green); }
-  .allfree.soon { border-left-color: var(--accent); }
-  .allfree.none .v { color: var(--faint); }
-  .status { flex: none; text-align: right; max-width: 15rem; }
+  .date { margin-left: 1.3rem; white-space: nowrap; line-height: 1.05; }
+  .date .dw { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; }
+  .date .dd { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; color: var(--accent-text); }
+  .date .dd small { font-size: .8rem; font-weight: 400; color: var(--fg-dim); letter-spacing: 0; margin-left: .4rem; }
+
+  /* everyone free: the state, the window, and the day laid out as a bar */
+  .allfree { flex: 1; min-width: 0; margin: 0 1.3rem; padding: .5rem .85rem .55rem; background: var(--bg2); border: 1px solid var(--border); border-radius: .25rem; --c: var(--faint); }
+  .allfree.on { --c: var(--green); } .allfree.soon { --c: var(--accent); }
+  .allfree .hd { display: flex; align-items: center; justify-content: space-between; }
+  .allfree .chip { font-family: var(--mono); font-size: .62rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .45rem; border-radius: .2rem; background: var(--c); color: var(--bg); text-transform: uppercase; white-space: nowrap; }
+  .allfree.on .chip { color: #fff; } .allfree.soon .chip { color: var(--ink); }
+  .allfree .v { margin-top: .2rem; font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+  .allfree.on .v { color: var(--green); }
+  .allfree.none .v, .allfree.quiet .v { color: var(--fg-dim); }
+  .allfree .bar { position: relative; height: .5rem; margin-top: .4rem; border-radius: .25rem; background: var(--line); overflow: hidden; }
+  .allfree .bar i { position: absolute; top: 0; bottom: 0; background: var(--green); opacity: .85; }
+  .allfree .bar u { position: absolute; top: -.1rem; bottom: -.1rem; width: .16rem; margin-left: -.08rem; background: var(--red); border-radius: .08rem; }
+  .allfree .ends { display: flex; justify-content: space-between; margin-top: .15rem; font-size: .55rem; color: var(--faint); }
+  .allfree .s { margin-top: .2rem; font-size: .7rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .allfree .s b { color: var(--fg); }
+  .status { flex: none; text-align: right; max-width: 14rem; }
   .status .sub { margin-top: .35rem; font-family: var(--mono); font-size: .7rem; line-height: 1.3; color: var(--fg-dim); }
   .status .sub b { color: var(--red); }
   .pill { display: inline-block; padding: .2rem .5rem; border-radius: 3px; font-family: var(--mono); font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--fg); color: var(--fg); white-space: nowrap; }
   .pill.red { color: #fff; background: var(--red); border-color: var(--red); }
   .pill.amber { color: var(--ink); background: #f2c94c; border-color: #f2c94c; }
-  .pill.open { color: var(--green); border-color: var(--green); }
-
+  
   /* ---------- main ---------- */
   main { display: grid; grid-template-columns: 1fr 22rem; min-height: 0; }
   #tl { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--border); padding: .5rem .5rem .45rem .35rem; }
@@ -94,13 +83,12 @@
   .col { flex: 1; position: relative; min-width: 0; margin: 0 .12rem; }
   .col.all { flex: .5; }
   .col.all::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: 0; background: repeating-linear-gradient(135deg, var(--hatch) 0 .35rem, transparent .35rem .7rem); }
-  /* the tint sits on an opaque base, so the grid lines behind a card don't show through the text */
-  .ev { position: absolute; left: 0; right: 0; padding: .12rem .3rem .12rem .4rem; border-left: 3px solid var(--c); background: linear-gradient(var(--tint), var(--tint)), var(--bg); overflow: hidden; }
-  .ev b { display: block; font-size: .76rem; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ev i { display: block; font-style: normal; font-family: var(--mono); font-size: .6rem; line-height: 1.25; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ev.now { box-shadow: inset 0 0 0 1px var(--c); }
-  .ev.x { background: transparent; border: 1px dashed var(--faint); border-left: 3px solid var(--faint); }
-  .ev.x b, .ev.x i { color: var(--faint); }
+  /* solid colour cards, text colour picked for contrast; titles wrap, the number of lines is set from the card height */
+  .ev { position: absolute; left: 0; right: 0; padding: .22rem .35rem; background: var(--c); color: var(--t); overflow: hidden; border-radius: .2rem; }
+  .ev b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); overflow: hidden; font-size: .8rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .ev i { display: block; font-style: normal; font-family: var(--mono); font-size: .62rem; line-height: 1.25; opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev.now { box-shadow: inset 0 0 0 .14rem var(--t); }
+  .ev.x { background: transparent; color: var(--faint); box-shadow: inset 0 0 0 1px var(--faint); }
   .ev.x b { text-decoration: line-through; }
   .free { position: absolute; left: .05rem; right: .05rem; background: var(--green-bg); border: 1px solid var(--green-line); color: var(--green); overflow: hidden; text-align: center; padding: .15rem .1rem; font-family: var(--mono); }
   .free b { display: block; font-size: .74rem; letter-spacing: .1em; }
@@ -139,7 +127,7 @@
   .who .s { flex: 1; min-width: 0; font-size: .8rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .who .s b { color: var(--fg); font-weight: 700; }
   .tag { flex: none; margin-left: .4rem; font-family: var(--mono); font-size: .58rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .35rem; border-radius: 3px; text-transform: uppercase; }
-  .tag.busy { background: var(--fg); color: var(--bg); }
+  .tag.busy { background: var(--red); color: #fff; }
   .tag.ok { background: var(--green-bg); color: var(--green); }
   .tag.done { color: var(--faint); border: 1px solid var(--border); }
   .up { flex: 1; min-height: 0; overflow: hidden; }
@@ -154,7 +142,6 @@
 
   /* ---------- ticker ---------- */
   footer { display: flex; align-items: stretch; height: 2.7rem; border-top: 1px solid var(--border); background: var(--bg2); }
-  .lbl { flex: none; display: flex; align-items: center; padding: 0 .9rem; background: var(--accent); color: var(--ink); font-family: var(--mono); font-size: .78rem; }
   .vp { flex: 1; overflow: hidden; position: relative; min-width: 0; }
   .track { position: absolute; top: 0; left: 0; height: 100%; display: flex; align-items: center; white-space: nowrap; will-change: transform; animation: scroll 60s linear infinite; }
   @keyframes scroll { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
@@ -197,13 +184,13 @@
     <nav>
       <span class="place" id="place"></span>
       <a class="chrome" href="update-board.html">edit</a>
-      <button class="chrome" id="themebtn" type="button">dark mode</button>
+      <button class="chrome" id="themebtn" type="button">theme: auto</button>
       <button class="chrome" id="fsbtn" type="button">full screen</button>
     </nav>
   </header>
   <div class="top" id="top">
     <div class="clock"><span class="hm" id="hm">--:--</span><span class="sec" id="sec"></span><span class="mer" id="mer"></span></div>
-    <div class="date"><div class="lab" id="dow"></div><b id="dmy"></b></div>
+    <div class="date"><div class="dw" id="dow"></div><div class="dd"><span id="dmy"></span><small id="yr"></small></div></div>
     <div class="allfree" id="allfree"></div>
     <div class="status" id="banner"></div>
   </div>
@@ -216,13 +203,13 @@
     </aside>
   </main>
   <footer>
-    <div class="lbl">board/</div>
     <div class="vp"><div class="track" id="track"></div></div>
   </footer>
   <div class="guides" id="guides"><span>&#9664; TV edge</span><span>TV edge &#9654;</span></div>
   <div class="panel" id="panel">
     <div class="lab">Display</div>
-    <div class="prow"><span>Theme</span><span><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></span></div>
+    <div class="prow"><span>Theme</span><span><button type="button" data-t="auto">Auto</button><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></span></div>
+    <p class="note">Auto is light by day and dark after sunset.</p>
     <div class="prow tvrow"><span>TV fit</span><span><button type="button" id="tvm">&minus;</button><b id="tvv"></b><button type="button" id="tvp">+</button></span></div>
     <p class="note tvrow">Move the red edges until they sit just inside the edges of the TV. 100% means nothing is cut off.</p>
     <div class="prow"><span class="note" style="margin:0">Hold the clock to open this again.</span><button type="button" id="pdone">Done</button></div>
@@ -240,7 +227,9 @@
    ===================================================================== */
 var CONFIG = {
   place: { name: 'UBC · Vancouver', lat: 49.2606, lon: -123.2460 },
-  awake: ['08:00', '23:00'],          // window used for "everyone is free" (and the default timeline range)
+  // quiet hours: nobody is counted as free overnight. Everyone is up from `wake`; `bed` is when the evening ends,
+  // by day of week (0 = Sunday). Minutes past midnight, so 1500 = 1 AM the next morning (Fri and Sat nights run late).
+  quiet: { wake: '07:00', bed: [1320, 1320, 1320, 1320, 1320, 1500, 1500] },
   minFreeMinutes: 30,                 // ignore shared gaps shorter than this
   autoFullscreenSeconds: 12,          // 0 = never try on a timer (see note in the toast logic)
   weatherRefreshMinutes: 20,
@@ -382,20 +371,48 @@ function eventsFor(p, d) {
   }).sort(function (a, b) { return a.start - b.start; });
 }
 
-// gaps where nobody has anything on
-function sharedFree(d) {
+// quiet hours. A day's awake time is 7 AM until bedtime; a Friday or Saturday night that runs to 1 AM leaves
+// the first hour of the next calendar day awake too.
+function bedtime(d) { return CONFIG.quiet.bed[d.getDay()]; }
+function awakeSegments(d) {
+  var out = [], carry = bedtime(addDays(d, -1)) - 1440;
+  if (carry > 0) out.push([0, carry]);
+  out.push([mins(CONFIG.quiet.wake), Math.min(bedtime(d), 1440)]);
+  return out;
+}
+function isAwake(d) {
+  var m = d.getHours() * 60 + d.getMinutes();
+  return awakeSegments(d).some(function (g) { return m >= g[0] && m < g[1]; });
+}
+
+// gaps where nobody has anything on, inside the awake time (short ones not yet dropped)
+function rawFree(d) {
   var busy = [];
   people().forEach(function (p) {
     eventsFor(p, d).forEach(function (e) { if (!e.cancelled) busy.push([e.start, e.end]); });
   });
   busy.sort(function (a, b) { return a[0] - b[0]; });
-  var s = mins(CONFIG.awake[0]), end = mins(CONFIG.awake[1]), out = [], cur = s;
-  busy.forEach(function (b) {
-    if (b[0] > cur) out.push([cur, Math.min(b[0], end)]);
-    cur = Math.max(cur, b[1]);
+
+  var out = [];
+  awakeSegments(d).forEach(function (seg) {
+    var cur = seg[0];
+    busy.forEach(function (b) {
+      if (b[1] <= seg[0] || b[0] >= seg[1]) return;
+      if (b[0] > cur) out.push([cur, Math.min(b[0], seg[1])]);
+      cur = Math.max(cur, b[1]);
+    });
+    if (cur < seg[1]) out.push([cur, seg[1]]);
   });
-  if (cur < end) out.push([cur, end]);
-  return out.filter(function (w) { return w[1] - w[0] >= CONFIG.minFreeMinutes; });
+  return out;
+}
+function longEnough(list) { return list.filter(function (w) { return w[1] - w[0] >= CONFIG.minFreeMinutes; }); }
+function sharedFree(d) { return longEnough(rawFree(d)); }
+// the same, but a free stretch that runs up to midnight on a late night carries on into the small hours
+// (joined before short gaps are dropped, so 11:50 PM to 1 AM counts as one stretch)
+function freeWindows(d) {
+  var list = rawFree(d), next = rawFree(addDays(d, 1)), last = list[list.length - 1];
+  if (last && last[1] === 1440 && next.length && next[0][0] === 0) list[list.length - 1] = [last[0], 1440 + next[0][1]];
+  return longEnough(list);
 }
 
 /* =====================================================================
@@ -483,30 +500,50 @@ function renderClock() {
 
 function renderHeader(d, m, free, info) {
   $('dow').textContent = DOW[d.getDay()];
-  $('dmy').textContent = MON[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  $('dmy').textContent = MON[d.getMonth()] + ' ' + d.getDate();
+  $('yr').textContent = d.getFullYear();
 
+  var segs = awakeSegments(d), awake = isAwake(d), el = $('allfree');
+  var wake = mins(CONFIG.quiet.wake), end = Math.min(bedtime(d), 1440), range = end - wake;
+  // free stretches that start tomorrow's small hours are not part of today's bar
+  var wins = free.map(function (w) { return [Math.max(w[0], wake), Math.min(w[1], end)]; }).filter(function (w) { return w[1] > w[0]; });
   var cur = null, next = null;
   free.forEach(function (w) { if (m >= w[0] && m < w[1]) cur = w; else if (w[0] > m && !next) next = w; });
-  var el = $('allfree');
-  if (cur) {
+
+  var bar = '<div class="bar">' + wins.map(function (w) {
+    return '<i style="left:' + (w[0] - wake) / range * 100 + '%;width:' + (w[1] - w[0]) / range * 100 + '%"></i>';
+  }).join('') + (m >= wake && m <= end ? '<u style="left:' + (m - wake) / range * 100 + '%"></u>' : '') + '</div>' +
+    '<div class="ends"><span>' + t12(wake) + '</span><span>' + t12(end) + '</span></div>';
+
+  if (!awake) {
+    el.className = 'allfree quiet';
+    el.innerHTML = '<div class="hd"><span class="lab">Quiet hours</span><span class="chip">shh</span></div><div class="v">Back at ' + t12(wake) + '</div>' +
+      '<div class="s">Free time counts from ' + t12(wake) + ' until ' + t12(bedtime(d) > 1440 ? bedtime(d) - 1440 : bedtime(d)) + (bedtime(d) > 1440 ? ' tonight' : '') + '</div>';
+  } else if (cur) {
+    var after = free.filter(function (w) { return w[0] > cur[1]; })[0];
     el.className = 'allfree on';
-    el.innerHTML = '<div class="lab">Everyone is free</div><div class="v">NOW · until ' + t12(cur[1]) + '</div><div class="s">' + dur(cur[1] - m) + ' left</div>';
+    el.innerHTML = '<div class="hd"><span class="lab">Everyone is free</span><span class="chip">Now</span></div>' +
+      '<div class="v">until ' + t12(cur[1]) + '</div>' + bar +
+      '<div class="s"><b>' + dur(cur[1] - m) + '</b> left' + (after ? ' · next ' + t12(after[0], true) + '–' + t12(after[1]) : '') + '</div>';
   } else if (next) {
+    var then = free.filter(function (w) { return w[0] > next[1]; })[0];
     el.className = 'allfree soon';
-    el.innerHTML = '<div class="lab">Everyone free next</div><div class="v">' + t12(next[0]) + ' – ' + t12(next[1]) + '</div><div class="s">in ' + dur(next[0] - m) + ' · lasts ' + dur(next[1] - next[0]) + '</div>';
+    el.innerHTML = '<div class="hd"><span class="lab">Everyone free next</span><span class="chip">in ' + dur(next[0] - m) + '</span></div>' +
+      '<div class="v">' + t12(next[0], true) + ' – ' + t12(next[1]) + '</div>' + bar +
+      '<div class="s">lasts <b>' + dur(next[1] - next[0]) + '</b>' + (then ? ' · then ' + t12(then[0], true) + '–' + t12(then[1]) : '') + '</div>';
   } else {
     el.className = 'allfree none';
-    el.innerHTML = '<div class="lab">Everyone free</div><div class="v">Not again today</div>';
+    el.innerHTML = '<div class="hd"><span class="lab">Everyone free</span><span class="chip">no</span></div><div class="v">Not again today</div>' + bar;
   }
 
-  var pill, tomorrow = dayInfo(addDays(d, 1)), tHol = HOL[key(addDays(d, 1))];
+  // UBC only gets a mention when it is closed (or a holiday is on); an ordinary open day says nothing
+  var pill = '', tomorrow = dayInfo(addDays(d, 1)), tHol = HOL[key(addDays(d, 1))];
   if (info.closed) pill = '<span class="pill red">UBC closed</span><div class="sub">' + esc(info.hol.name) + '</div>';
-  else if (info.hol) pill = '<span class="pill amber">' + esc(info.hol.name) + '</span><div class="sub">UBC open</div>';
+  else if (info.hol) pill = '<span class="pill amber">' + esc(info.hol.name) + '</span>';
   else if (info.weekend) pill = '<span class="pill">Weekend</span>';
-  else pill = '<span class="pill open">UBC open</span>';
   if (tomorrow.closed && !info.closed) pill += '<div class="sub"><b>Tomorrow: UBC closed</b> · ' + esc(tHol.name) + '</div>';
-  else if (!info.hol && !info.weekend) pill += '<div class="sub">classes on</div>';
   $('banner').innerHTML = pill;
+  $('banner').style.display = pill ? '' : 'none';
 }
 
 /* =====================================================================
@@ -516,8 +553,8 @@ function renderTimeline(d, m, free, info) {
   var ppl = people(), all = {};
   ppl.forEach(function (p) { all[p.id] = eventsFor(p, d); });
 
-  // default range is the awake window; stretch it if someone has something earlier or later
-  var t0 = mins(CONFIG.awake[0]), t1 = mins(CONFIG.awake[1]);
+  // default range is the awake day; stretch it if someone has something earlier or later
+  var t0 = mins(CONFIG.quiet.wake), t1 = Math.min(bedtime(d), 1440);
   ppl.forEach(function (p) { all[p.id].forEach(function (e) { t0 = Math.min(t0, Math.floor(e.start / 60) * 60); t1 = Math.max(t1, Math.ceil(e.end / 60) * 60); }); });
   t1 = Math.min(t1, 24 * 60);
   var span = t1 - t0;
@@ -539,17 +576,26 @@ function renderTimeline(d, m, free, info) {
   }
   $('lines').innerHTML = lines;
 
-  // people
+  // people. every card shows as much as fits: the title first (wrapping up to three lines), then the time, then the place
+  var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   ppl.forEach(function (p) {
-    $('c-' + p.id).innerHTML = all[p.id].map(function (e) {
-      var top = px(e.start) + 1, h = Math.max(px(e.end) - px(e.start) - 2, 6), live = !e.cancelled && m >= e.start && m < e.end;
-      var line = e.cancelled ? ' cancelled' : '';
-      var sub = '';
-      if (h >= 34) sub += '<i>' + t12(e.start, true) + '–' + t12(e.end) + '</i>';
-      if (h >= 50 && e.where) sub += '<i>' + esc(e.where) + '</i>';
-      var one = h < 22 ? ' style="padding-top:0;padding-bottom:0"' : '';
-      return '<div class="ev' + (e.cancelled ? ' x' : '') + (live ? ' now' : '') + '" style="--c:' + p.color + ';--tint:' + rgba(p.color, isDark() ? .4 : .3) +
-        ';top:' + top + 'px;height:' + h + 'px"' + one + '><b>' + esc(e.title) + line + '</b>' + sub + '</div>';
+    var col = $('c-' + p.id), colRem = col.clientWidth / rem, perLine = Math.max(4, Math.floor((colRem - .75) / .5));
+    var ink = BoardTheme.inkOn(p.color);
+
+    col.innerHTML = all[p.id].map(function (e) {
+      var top = px(e.start) + 1, h = Math.max(px(e.end) - px(e.start) - 2, 6), hr = h / rem, live = !e.cancelled && m >= e.start && m < e.end;
+      var titleLines = Math.min(3, Math.max(1, Math.ceil(e.title.length / perLine))), lineH = .92, rowH = .78, avail = hr - .46;
+      var showTime = false, showWhere = false;
+
+      if (avail >= titleLines * lineH + rowH) { showTime = true; if (e.where && avail >= titleLines * lineH + rowH * 2) showWhere = true; }
+      else if (titleLines > 1 && avail >= lineH + rowH) { showTime = true; titleLines = Math.max(1, Math.floor((avail - rowH) / lineH)); }
+      else titleLines = Math.max(1, Math.floor(avail / lineH));
+
+      var sub = (showTime ? '<i>' + t12(e.start, true) + '–' + t12(e.end) + '</i>' : '') + (showWhere ? '<i>' + esc(e.where) + '</i>' : '');
+      var pad = h < 22 ? 'padding-top:0;padding-bottom:0;' : '';
+
+      return '<div class="ev' + (e.cancelled ? ' x' : '') + (live ? ' now' : '') + '" style="--c:' + p.color + ';--t:' + ink + ';' + pad +
+        'top:' + top + 'px;height:' + h + 'px"><b style="--lines:' + titleLines + '">' + esc(e.title) + (e.cancelled ? ' (off)' : '') + '</b>' + sub + '</div>';
     }).join('');
   });
 
@@ -638,6 +684,27 @@ function renderUp(d) {
    ticker
    ===================================================================== */
 var tickerSig = '';
+// a rain heads-up that knows what time it is: relative ("in 2 h"), skips hours nobody is up for, says when it clears
+function dayPart(h, later) { var part = h < 12 ? 'morning' : h < 17 ? 'afternoon' : h < 21 ? 'evening' : 'night'; return later ? 'tomorrow ' + part : part === 'night' ? 'tonight' : 'this ' + part; }
+function rainNotice(d) {
+  var hrs = wxHours(12, d);
+  if (!hrs.length) return '';
+  var wet = function (x) { return x.p >= 60 || (x.c >= 51 && x.c <= 67) || (x.c >= 80 && x.c <= 82) || x.c >= 95; };
+  var upAt = function (i) { return isAwake(new Date(d.getTime() + i * 3600000)); };
+
+  if (wet(hrs[0]) && upAt(0)) {
+    var clear = 0;
+    for (var j = 1; j < hrs.length; j++) if (!wet(hrs[j])) { clear = j; break; }
+    return 'Raining now' + (clear ? ', should ease around ' + t12(hrs[clear].h * 60) : ' for the next few hours') + ' — take an umbrella';
+  }
+  for (var i = 1; i < hrs.length; i++) {
+    if (!wet(hrs[i]) || !upAt(i)) continue;
+    var when = i <= 1 ? 'within the hour' : i <= 5 ? 'in about ' + i + ' h (' + t12(hrs[i].h * 60) + ')' : dayPart(hrs[i].h, new Date(d.getTime() + i * 3600000).getDate() !== d.getDate()) + ' around ' + t12(hrs[i].h * 60);
+    return 'Rain ' + when + ' · ' + hrs[i].p + '% — take an umbrella';
+  }
+  return '';
+}
+
 function tickerItems(d, m) {
   var items = [], k = key(d), tomorrow = addDays(d, 1);
 
@@ -668,8 +735,8 @@ function tickerItems(d, m) {
     items.push({ g: n.tag || 'INFO', c: (n.tag || '').toLowerCase(), t: n.text, when: when });
   });
 
-  var rain = wxHours(9, d).filter(function (x) { return x.p >= 60; })[0];
-  if (rain) items.push({ g: 'WX', c: 'wx', t: 'Rain likely around ' + t12(rain.h * 60) + ' (' + rain.p + '%) — take an umbrella' });
+  var rain = rainNotice(d);
+  if (rain) items.push({ g: 'WX', c: 'wx', t: rain });
 
   if (!items.length) items.push({ g: 'BOARD', c: '', t: 'All quiet. Enjoy it.' });
   return items;
@@ -693,7 +760,7 @@ function renderTicker(d, m) {
    main loop
    ===================================================================== */
 function render() {
-  var d = now(), m = d.getHours() * 60 + d.getMinutes(), info = dayInfo(d), free = sharedFree(d);
+  var d = now(), m = d.getHours() * 60 + d.getMinutes(), info = dayInfo(d), free = freeWindows(d);
   var all = {};
   people().forEach(function (p) { all[p.id] = eventsFor(p, d); });
   renderHeader(d, m, free, info);
@@ -701,7 +768,7 @@ function render() {
   renderWho(d, m, all);
   renderUp(d);
   renderTicker(d, m);
-  renderTimeline(d, m, free, info);   // last: it measures its own height, which the side panels change in portrait
+  renderTimeline(d, m, sharedFree(d), info);   // last: it measures its own height, which the side panels change in portrait
 }
 
 /* =====================================================================
@@ -755,7 +822,7 @@ function setupFullscreen() {
 /* =====================================================================
    TV fit
    The old TV is not 16:9, so for the board login in full screen the board is laid out in a centred
-   16:9 frame: width first, height from the ratio, black outside it.
+   16:10 frame: width first, height from the ratio, black outside it.
    The width share is a per-device setting (hold the clock to change it, default 100%). ?tv=88 forces the frame on at 88%
    on any device, for testing; ?tv=off forces it off.
    ===================================================================== */
@@ -765,6 +832,7 @@ var store = {
 };
 var ROLE = store.get('board.role');   // remembered so the frame still applies if /api/me can't be reached
 var TV_DEFAULT = 100;
+var TV_RATIO_W = 16, TV_RATIO_H = 10;
 var tvParam = /[?&]tv=([^&]+)/.exec(location.search);
 tvParam = tvParam ? tvParam[1] : null;
 function tvWidth() {
@@ -780,7 +848,9 @@ function loadMe() {
   if (!window.fetch || (m && m[1] === 'off')) return;
   fetch('api/me', { cache: 'no-store', credentials: 'same-origin' }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
     var role = j && j.user ? j.user.role : null;
-    if (!role || role === ROLE) return;
+    // a housemate sees the board in their own colour; the wall display keeps the house blue
+    BoardTheme.setAccent(role === 'member' ? j.user.color : null);
+    if (!role || role === ROLE) { render(); return; }
     ROLE = role; store.set('board.role', role); relayout();
   }).catch(function () {});
 }
@@ -791,10 +861,10 @@ function fit() {
   var on = tvOn();
   document.body.classList.toggle('tv', on);
   if (on) {
-    // TV frame is 16:9: fill the width (TV-fit setting), take the height from the ratio, centre it.
-    // If that is taller than the screen, fill the height and take the width from the ratio instead.
-    var sw = window.innerWidth, sh = window.innerHeight, fw = sw * tvWidth() / 100, fh = fw * 9 / 16;
-    if (fh > sh) { fh = sh; fw = sh * 16 / 9; }
+    // TV frame is 16:10, a little taller than 16:9: fill the width (TV-fit setting), take the height from the ratio,
+    // centre it. If that is taller than the screen, fill the height and take the width from the ratio instead.
+    var sw = window.innerWidth, sh = window.innerHeight, fw = sw * tvWidth() / 100, fh = fw * TV_RATIO_H / TV_RATIO_W;
+    if (fh > sh) { fh = sh; fw = sh * TV_RATIO_W / TV_RATIO_H; }
     var x = (sw - fw) / 2, y = (sh - fh) / 2;
     frame.style.left = x + 'px'; frame.style.right = x + 'px';
     frame.style.top = y + 'px'; frame.style.bottom = y + 'px';
@@ -808,19 +878,13 @@ function fit() {
 function relayout() { fit(); tickerSig = ''; render(); syncPanel(); }
 
 /* =====================================================================
-   theme (light / dark, saved per device; follows the system until someone picks one)
+   theme: auto (light by day, dark after sunset), or pinned to light or dark. theme.js does the work
    ===================================================================== */
-function isDark() { return de.getAttribute('data-theme') === 'dark'; }
-function setTheme(t, save) {
-  de.setAttribute('data-theme', t);
-  if (save) store.set('board.theme', t);
-  tickerSig = ''; render(); syncPanel();
-}
-if (window.matchMedia) {
-  var mq = matchMedia('(prefers-color-scheme: dark)'), follow = function () { if (!store.get('board.theme')) setTheme(mq.matches ? 'dark' : 'light'); };
-  if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow);
-}
-$('themebtn').addEventListener('click', function (e) { e.stopPropagation(); setTheme(isDark() ? 'light' : 'dark', true); });
+function isDark() { return BoardTheme.isDark(); }
+function setMode(m) { BoardTheme.setMode(m); tickerSig = ''; render(); syncPanel(); }
+BoardTheme.onChange(function () { tickerSig = ''; render(); syncPanel(); });
+var NEXT_MODE = { auto: 'light', light: 'dark', dark: 'auto' };
+$('themebtn').addEventListener('click', function (e) { e.stopPropagation(); setMode(NEXT_MODE[BoardTheme.mode()]); });
 
 /* =====================================================================
    display panel: theme + TV fit. Opens from a long press on the clock row, which works in
@@ -828,9 +892,9 @@ $('themebtn').addEventListener('click', function (e) { e.stopPropagation(); setT
    ===================================================================== */
 var panel = $('panel');
 function syncPanel() {
-  $('themebtn').textContent = isDark() ? 'light mode' : 'dark mode';
+  $('themebtn').textContent = 'theme: ' + BoardTheme.mode();
   var open = panel.classList.contains('on'), tv = tvOn();
-  [].forEach.call(panel.querySelectorAll('[data-t]'), function (b) { b.classList.toggle('on', b.getAttribute('data-t') === de.getAttribute('data-theme')); });
+  [].forEach.call(panel.querySelectorAll('[data-t]'), function (b) { b.classList.toggle('on', b.getAttribute('data-t') === BoardTheme.mode()); });
   [].forEach.call(panel.querySelectorAll('.tvrow'), function (r) { r.style.display = tv ? '' : 'none'; });
   $('tvv').textContent = tvWidth() + '%';
   $('guides').classList.toggle('on', open && tv);
@@ -843,7 +907,7 @@ panel.addEventListener('click', function (e) {
   var b = e.target;
   while (b && b !== panel && b.tagName !== 'BUTTON') b = b.parentNode;
   if (!b || b === panel) return;
-  if (b.getAttribute('data-t')) setTheme(b.getAttribute('data-t'), true);
+  if (b.getAttribute('data-t')) setMode(b.getAttribute('data-t'));
   else if (b.id === 'tvm') nudgeTv(-1);
   else if (b.id === 'tvp') nudgeTv(1);
   else if (b.id === 'pdone') closePanel();

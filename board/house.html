@@ -7,19 +7,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#6fa3ee">
 <title>House Board · Board settings</title>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js"></script>
 <style>
-  :root {
-    --bg: #ffffff; --bg2: #f5f5f5; --fg: #1a1a1a; --fg-dim: #666666; --border: #d8d8d8;
-    --accent: #6fa3ee; --accent-dim: #6fa3ee99; --green: #1f9d5c; --red: #e0453a; --c: #6fa3ee;
-    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  }
+  :root { --c: #6fa3ee; }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--serif); font-size: 17px; line-height: 1.55; }
-  header.masthead { font-family: var(--mono); background: var(--accent); color: var(--fg); padding: 14px 24px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header.masthead { font-family: var(--mono); background: var(--accent); color: var(--ink); padding: 14px 24px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
   header.masthead .brand { font-size: 13px; }
   header.masthead nav { display: flex; gap: 18px; }
-  header.masthead a, header.masthead button { color: var(--fg); text-decoration: none; opacity: .75; font-size: 13px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+  header.masthead a, header.masthead button { color: var(--ink); text-decoration: none; opacity: .75; font-size: 13px; background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
   header.masthead a:hover, header.masthead button:hover { opacity: 1; text-decoration: underline; }
   .wrap { max-width: 660px; margin: 0 auto; padding: 40px 24px 80px; }
   h1 { font-size: 32px; line-height: 1.25; margin: 0 0 8px; }
@@ -34,11 +31,11 @@
   .card b { display: block; font-size: 16px; overflow-wrap: anywhere; }
   .card small { color: var(--fg-dim); font-family: var(--mono); font-size: 12px; display: block; margin-top: 2px; }
   .tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; padding: 2px 6px; border-radius: 3px; background: var(--fg-dim); color: #fff; margin-right: 8px; vertical-align: 2px; }
-  .tag.FOOD { background: var(--green); } .tag.UNI { background: var(--red); } .tag.HOME { background: var(--accent); color: var(--fg); } .tag.EVENT { background: #8f6ad8; }
+  .tag.FOOD { background: var(--green); } .tag.UNI { background: var(--red); } .tag.HOME { background: var(--accent); color: var(--ink); } .tag.EVENT { background: #8f6ad8; }
   .badge { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; padding: 2px 6px; border-radius: 3px; background: rgba(224,69,58,.12); color: var(--red); margin-left: 8px; vertical-align: 2px; }
   .days { display: flex; margin-top: 6px; }
   .days i { font-style: normal; font-family: var(--mono); font-size: 11px; width: 21px; height: 21px; line-height: 19px; text-align: center; border-radius: 50%; margin-right: 3px; color: var(--fg-dim); border: 1px solid var(--border); background: var(--bg); }
-  .days i.on { background: var(--c); color: var(--fg); border-color: var(--c); font-weight: 700; }
+  .days i.on { background: var(--c); color: var(--cink); border-color: var(--c); font-weight: 700; }
   .card button.ed { background: var(--bg); border: 1px solid var(--border); color: var(--fg); border-radius: 3px; padding: 7px 12px; font-size: 13px; margin-left: 8px; cursor: pointer; }
   .card button.ed:hover { border-color: var(--accent); }
   .empty { color: var(--fg-dim); font-style: italic; padding: 2px 2px 0; }
@@ -48,12 +45,12 @@
   button, select, input { font-family: var(--mono); }
   select, input[type=text], input[type=time], input[type=date] { padding: 10px 12px; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 15px; }
   select:focus, input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-  .veil { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(26,26,26,.45); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
+  .veil { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--shade); display: none; align-items: flex-end; justify-content: center; z-index: 10; }
   .veil.on { display: flex; }
   .sheet { width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: 3px 3px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); }
   @media (min-width: 600px) { .veil { align-items: center; } .sheet { border-radius: 3px; } }
   .sheet h3 { margin: 0 0 6px; font-size: 24px; line-height: 1.25; }
-  .sheet label.l { display: block; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 16px 0 6px; }
+  .sheet label.l { display: block; font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text); margin: 16px 0 6px; }
   .sheet input[type=text], .sheet select { width: 100%; }
   .row { display: flex; }
   .row > div { flex: 1; margin-right: 10px; }
@@ -62,11 +59,11 @@
   .seg { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
   .seg button { flex: 1; padding: 10px; background: var(--bg); border: 0; color: var(--fg-dim); font-size: 14px; cursor: pointer; }
   .seg button + button { border-left: 1px solid var(--border); }
-  .seg button.on { background: var(--accent); color: var(--fg); font-weight: 700; }
+  .seg button.on { background: var(--accent); color: var(--ink); font-weight: 700; }
   .dpick { display: flex; }
   .dpick button { flex: 1; margin-right: 6px; padding: 11px 0; border-radius: 3px; border: 1px solid var(--border); background: var(--bg); color: var(--fg-dim); font-size: 14px; cursor: pointer; }
   .dpick button:last-child { margin-right: 0; }
-  .dpick button.on { background: var(--accent); border-color: var(--accent); color: var(--fg); font-weight: 700; }
+  .dpick button.on { background: var(--accent); border-color: var(--accent); color: var(--ink); font-weight: 700; }
   .chk { display: flex; align-items: flex-start; margin-top: 18px; font-size: 16px; }
   .chk input { width: 20px; height: 20px; margin: 3px 10px 0 0; flex: none; accent-color: var(--accent); }
   .chk small { display: block; color: var(--fg-dim); font-family: var(--mono); font-size: 12px; }
@@ -82,7 +79,7 @@
 <body>
 <header class="masthead">
   <span class="brand">board.pierceoxley.ca/settings</span>
-  <nav><a href="index.html">board</a><button id="out">sign out</button></nav>
+  <nav><button id="themebtn" type="button">theme: auto</button><a href="index.html">board</a><button id="out">sign out</button></nav>
 </header>
 <div class="wrap" id="app" style="display:none">
   <h1>Board settings</h1>
@@ -267,13 +264,21 @@
     save(function (h) { h[LIST[kind]] = h[LIST[kind]].filter(function (x) { return x.id !== editing.id; }); }, closeSheet)
       .catch(function (err) { $('ferr').textContent = err.message; });
   });
-  $('out').addEventListener('click', function () { api('POST', 'logout').then(function () { location.href = 'login.html'; }); });
+  $('out').addEventListener('click', function () { api('POST', 'logout').then(function () { BoardTheme.setAccent(null); location.href = 'login.html'; }); });
 
   /* ---------- boot ---------- */
   api('GET', 'me').then(function (j) {
     if (j.user.role !== 'board') { location.href = 'update-board.html'; return; }
     return api('GET', 'house').then(function (r) { house = r.house; render(); $('app').style.display = ''; });
   }).catch(function (err) { document.body.textContent = err.message; });
+})();
+</script>
+<script>
+(function () {
+  var b = document.getElementById('themebtn'), next = { auto: 'light', light: 'dark', dark: 'auto' };
+  function label() { b.textContent = 'theme: ' + BoardTheme.mode(); }
+  b.addEventListener('click', function () { BoardTheme.setMode(next[BoardTheme.mode()]); label(); });
+  label();
 })();
 </script>
 </body>
