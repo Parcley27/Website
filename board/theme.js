@@ -55,7 +55,7 @@
   function inkOn(h) { return contrast(rgb(h), [26, 26, 26]) >= contrast(rgb(h), [255, 255, 255]) ? '#1a1a1a' : '#ffffff'; }
   // the colour itself, nudged until it can be used as text on the page background
   function textOn(h, dark) {
-    var c = rgb(h), bg = dark ? [20, 20, 20] : [255, 255, 255], toward = dark ? [255, 255, 255] : [0, 0, 0], t = 0;
+    var c = rgb(h), bg = dark ? [0, 0, 0] : [255, 255, 255], toward = dark ? [255, 255, 255] : [0, 0, 0], t = 0;
     while (contrast(mix(c, toward, t), bg) < 4.5 && t < 1) t += .05;
     return hex(mix(c, toward, t));
   }

@@ -43,6 +43,7 @@
   .profile select { margin-left: 8px; }
   .fab { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--accent); color: var(--ink); border: 1px solid var(--accent); border-radius: 3px; padding: 14px 26px; font-size: 15px; font-weight: 700; box-shadow: 0 6px 24px rgba(0,0,0,.18); cursor: pointer; }
   .fab:hover { border-color: var(--fg); }
+  .hint { margin: 4px 0 0; color: var(--fg-dim); font-family: var(--mono); font-size: 12px; }
   .saved { color: var(--green); font-family: var(--mono); font-size: 13px; margin-left: 2px; margin-bottom: 8px; opacity: 0; transition: opacity .3s; }
   .saved.on { opacity: 1; }
 
@@ -92,6 +93,13 @@
     </label>
     <span class="saved" id="saved">Saved</span>
   </div>
+  <div class="profile" style="margin-top:4px">
+    <label style="margin-right:12px">Right now</label>
+    <div class="seg" id="status" style="flex:0 1 330px">
+      <button type="button" data-s="" class="on">Auto</button><button type="button" data-s="home">Home</button><button type="button" data-s="away">Away</button>
+    </div>
+  </div>
+  <p class="hint">Auto follows your calendar. Home or Away overrides it on the board until you set it back.</p>
 
   <h2>Every week</h2>
   <div id="weekly"></div>
@@ -114,7 +122,12 @@
     <label class="l">Repeats</label>
     <div class="seg"><button type="button" id="mw" class="on">Every week</button><button type="button" id="mo">Just one day</button></div>
     <div id="pw" style="margin-top:12px"><div class="dpick" id="dp"></div></div>
-    <div id="po" style="margin-top:12px;display:none"><input type="date" id="d" style="width:100%"></div>
+    <div id="po" style="margin-top:12px;display:none">
+      <div class="row">
+        <div><label class="l" for="d" style="margin-top:0">Starts on</label><input type="date" id="d" style="width:100%"></div>
+        <div><label class="l" for="ed" style="margin-top:0">Ends on <span style="text-transform:none;letter-spacing:0">(if later)</span></label><input type="date" id="ed" style="width:100%"></div>
+      </div>
+    </div>
     <label class="chk"><input type="checkbox" id="u"><span>This is a UBC class<small>Shows as cancelled on days UBC is closed, so it doesn't count as busy.</small></span></label>
     <div class="err" id="ferr" role="alert"></div>
     <div class="btns"><button type="button" id="cancel">Cancel</button><button type="button" class="del" id="del" style="display:none">Delete</button><button class="go" id="save">Save</button></div>
@@ -142,14 +155,14 @@
     var c = el('div', 'card'), main = el('div', 'main'), b = el('b', '', ev.title);
     if (ev.ubc) b.appendChild(el('span', 'badge', 'CLASS'));
     main.appendChild(b);
-    main.appendChild(el('small', '', t12(ev.start) + ' – ' + t12(ev.end) + (ev.where ? ' · ' + ev.where : '')));
+    main.appendChild(el('small', '', (ev.endDate ? t12(ev.start) + ' on day one, until ' + t12(ev.end) + ' on the last' : t12(ev.start) + ' – ' + t12(ev.end)) + (ev.where ? ' · ' + ev.where : '')));
     if (ev.days) {
       var d = el('div', 'days');
       DAYS.forEach(function (l, i) { d.appendChild(el('i', ev.days.indexOf(i) > -1 ? 'on' : '', l)); });
       main.appendChild(d);
     } else {
-      var dt = new Date(ev.date + 'T12:00:00');
-      main.appendChild(el('div', 'when', ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()] + ' ' + MONTHS[dt.getMonth()] + ' ' + dt.getDate()));
+      var nice = function (k) { var dt = new Date(k + 'T12:00:00'); return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()] + ' ' + MONTHS[dt.getMonth()] + ' ' + dt.getDate(); };
+      main.appendChild(el('div', 'when', nice(ev.date) + (ev.endDate ? ' → ' + nice(ev.endDate) : '')));
     }
     var edit = el('button', '', 'Edit');
     edit.addEventListener('click', function () { openSheet(ev); });
@@ -160,7 +173,7 @@
     var weekly = $('weekly'), once = $('once'), now = new Date(), today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);   // local, not UTC
     weekly.textContent = ''; once.textContent = '';
     var w = events.filter(function (e) { return e.days; }).sort(function (a, b) { return a.days[0] - b.days[0] || a.start.localeCompare(b.start); });
-    var o = events.filter(function (e) { return e.date && e.date >= today; }).sort(function (a, b) { return (a.date + a.start).localeCompare(b.date + b.start); });
+    var o = events.filter(function (e) { return e.date && (e.endDate || e.date) >= today; }).sort(function (a, b) { return (a.date + a.start).localeCompare(b.date + b.start); });
     w.forEach(function (e) { weekly.appendChild(card(e)); });
     o.forEach(function (e) { once.appendChild(card(e)); });
     if (!w.length) weekly.appendChild(el('div', 'empty', 'Nothing yet. Add your classes and regular shifts and they\'ll repeat every week.'));
@@ -186,7 +199,7 @@
     $('ftitle').textContent = ev ? 'Edit event' : 'Add event';
     $('t').value = ev ? ev.title : ''; $('w').value = ev ? ev.where || '' : '';
     $('s').value = ev ? ev.start : ''; $('e').value = ev ? (ev.end === '24:00' ? '23:59' : ev.end) : '';
-    $('u').checked = !!(ev && ev.ubc); $('d').value = ev && ev.date ? ev.date : '';
+    $('u').checked = !!(ev && ev.ubc); $('d').value = ev && ev.date ? ev.date : ''; $('ed').value = ev && ev.endDate ? ev.endDate : '';
     (ev && ev.days ? ev.days : []).forEach(function (d) { picked[d] = true; });
     setMode(ev && ev.date ? 'once' : 'week'); drawDays();
     $('del').style.display = ev ? '' : 'none'; $('ferr').textContent = '';
@@ -204,7 +217,7 @@
   $('form').addEventListener('submit', function (e) {
     e.preventDefault();
     var body = { title: $('t').value, where: $('w').value, start: $('s').value, end: $('e').value, ubc: $('u').checked };
-    if (mode === 'once') body.date = $('d').value;
+    if (mode === 'once') { body.date = $('d').value; if ($('ed').value && $('ed').value !== body.date) body.endDate = $('ed').value; }
     else body.days = Object.keys(picked).filter(function (k) { return picked[k]; }).map(Number);
     $('save').disabled = true;
     (editing ? api('PUT', 'events/' + editing.id, body) : api('POST', 'events', body)).then(function (j) {
@@ -239,13 +252,19 @@
     paint($('color').value);
     api('PATCH', 'me', { color: $('color').value }).then(flash).catch(function (err) { alert(err.message); });
   });
+  function paintStatus(v) { [].forEach.call($('status').children, function (b) { b.className = b.getAttribute('data-s') === (v || '') ? 'on' : ''; }); }
+  $('status').addEventListener('click', function (e) {
+    var b = e.target; if (!b || b.tagName !== 'BUTTON') return;
+    var v = b.getAttribute('data-s'); paintStatus(v);
+    api('PATCH', 'me', { status: v }).then(flash).catch(function (err) { alert(err.message); });
+  });
   $('out').addEventListener('click', function () { api('POST', 'logout').then(function () { BoardTheme.setAccent(null); location.href = 'login.html'; }); });
 
   /* ---------- boot ---------- */
   api('GET', 'me').then(function (j) {
     me = j.user;
     if (me.role === 'board') { location.href = 'house.html'; return; }
-    $('who').textContent = me.name; paint(me.color); $('color').value = me.color || '#4cc2ff';
+    $('who').textContent = me.name; paint(me.color); paintStatus(me.status); $('color').value = me.color || '#4cc2ff';
     if (me.birthday) { $('bm').value = +me.birthday.slice(0, 2); $('bd').value = +me.birthday.slice(3); }
     return api('GET', 'events').then(function (r) {
       events = r.events; render();

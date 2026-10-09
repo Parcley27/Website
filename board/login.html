@@ -29,6 +29,10 @@
   button { width: 100%; padding: 13px; border: 1px solid var(--accent); border-radius: 3px; background: var(--accent); color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer; }
   button:hover { border-color: var(--fg); }
   button:disabled { opacity: .6; }
+  .pwrow { position: relative; }
+  .pwrow input { padding-right: 76px; }
+  .pwrow #show { position: absolute; right: 8px; top: 8px; width: auto; padding: 6px 11px; border: 1px solid var(--border); background: var(--bg2); color: var(--fg-dim); font-size: 12px; font-weight: 400; border-radius: 3px; }
+  .pwrow #show:hover { border-color: var(--accent); color: var(--fg); }
   .err { min-height: 22px; margin: 0 0 12px; color: var(--red); font-family: var(--mono); font-size: 13px; }
   .hint { margin-top: 22px; padding: 10px 14px; border: 1px solid var(--border); border-left: 3px solid var(--accent); background: var(--bg2); color: var(--fg-dim); font-family: var(--mono); font-size: 13px; }
   .hint b { color: var(--fg); }
@@ -46,7 +50,10 @@
   <label for="name">Name</label>
   <input id="name" name="username" autocomplete="username" autocapitalize="words" autocorrect="off" required autofocus>
   <label for="pw">Password</label>
-  <input id="pw" name="password" type="password" autocomplete="current-password" required>
+  <div class="pwrow">
+    <input id="pw" name="password" type="password" autocomplete="current-password" required>
+    <button type="button" id="show" aria-label="Show password" aria-pressed="false">show</button>
+  </div>
   <div class="err" id="err" role="alert"></div>
   <button id="go">Sign in</button>
   <p class="hint">On the wall display? Sign in as <b>board</b>.</p>
@@ -55,6 +62,13 @@
 <script>
 (function () {
   BoardTheme.setAccent(null);   // nobody is signed in yet, so the house blue
+  var pw = document.getElementById('pw'), showBtn = document.getElementById('show');
+  showBtn.addEventListener('click', function () {
+    var on = pw.type === 'password';
+    pw.type = on ? 'text' : 'password';
+    showBtn.textContent = on ? 'hide' : 'show'; showBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    pw.focus();
+  });
   var f = document.getElementById('f'), err = document.getElementById('err'), go = document.getElementById('go');
   f.addEventListener('submit', function (e) {
     e.preventDefault();

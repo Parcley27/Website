@@ -151,18 +151,25 @@ function validateEvent(b) {
     if (where.length > 60) return { error: 'Location is too long (60 characters max)' };
     if (!TIME.test(b.start || '')) return { error: 'Pick a start time' };
     if (!(TIME.test(b.end || '') || b.end === '24:00')) return { error: 'Pick an end time' };
-    if (toMin(b.end) <= toMin(b.start)) return { error: 'The end time has to be after the start' };
     const ev = { title, where, start: b.start, end: b.end };
     if (b.ubc) ev.ubc = true;
+    const validDay = x => { const d = DATE.test(x || '') && new Date(x + 'T00:00:00Z'); return !!d && !isNaN(d) && d.toISOString().slice(0, 10) === x; };   // rejects 2026-02-31, which Date would roll over
     if (b.date) {
-        const d = DATE.test(b.date) && new Date(b.date + 'T00:00:00Z');
-        if (!d || isNaN(d) || d.toISOString().slice(0, 10) !== b.date) return { error: 'Pick a valid date' };   // rejects 2026-02-31, which Date would roll over
+        if (!validDay(b.date)) return { error: 'Pick a valid date' };
         ev.date = b.date;
+        // a different end date makes it a multi-day event: the end time is on the last day, so it needn't be after the start
+        if (b.endDate && b.endDate !== b.date) {
+            if (!validDay(b.endDate)) return { error: 'Pick a valid end date' };
+            if (b.endDate < b.date) return { error: 'The end date can\'t be before the start date' };
+            if ((Date.parse(b.endDate) - Date.parse(b.date)) / DAY > 60) return { error: 'Multi-day events can run 60 days at most' };
+            ev.endDate = b.endDate;
+        }
     } else {
         const days = Array.isArray(b.days) ? b.days.map(Number) : [];
         if (!days.length || days.some(d => !Number.isInteger(d) || d < 0 || d > 6)) return { error: 'Pick at least one day' };
         ev.days = Array.from(new Set(days)).sort();
     }
+    if (!ev.endDate && toMin(b.end) <= toMin(b.start)) return { error: 'The end time has to be after the start' };
     return { ev };
 }
 
@@ -171,9 +178,24 @@ function manualByDay(events, fromKey, toKey) {
     const out = {};
     for (let ms = Date.parse(fromKey + 'T00:00:00Z'); ms <= Date.parse(toKey + 'T00:00:00Z'); ms += DAY) {
         const k = dayKey(ms), dow = new Date(ms).getUTCDay();
-        const today = events.filter(e => e.date ? e.date === k : (e.days || []).indexOf(dow) > -1)
-            .map(e => { const o = { start: e.start, end: e.end, title: e.title, where: e.where || '' }; if (e.ubc) o.ubc = true; return o; });
-        if (today.length) out[k] = today;
+        const today = [];
+        events.forEach(e => {
+            let start = e.start, end = e.end;
+            if (e.date) {
+                if (e.endDate && e.endDate > e.date) {
+                    if (k < e.date || k > e.endDate) return;
+                    // first day runs to midnight, the days between are all day, the last day starts at midnight
+                    if (k > e.date) start = '00:00';
+                    if (k < e.endDate) end = '24:00';
+                } else if (e.date !== k) return;
+            } else if ((e.days || []).indexOf(dow) < 0) return;
+            if (toMin(end) <= toMin(start)) return;
+            const o = { start, end, title: e.title, where: e.where || '' };
+            if (e.ubc) o.ubc = true;
+            if (e.endDate && e.endDate > e.date) o.multi = true;
+            today.push(o);
+        });
+        if (today.length) out[k] = today.sort((a, b) => a.start.localeCompare(b.start));
     }
     return out;
 }
@@ -308,7 +330,8 @@ const clientIp = req => (req.socket.remoteAddress === '127.0.0.1' || req.socket.
 function tooMany(ip) { const m = misses[ip]; return !!m && m.until > Date.now() && m.n >= 10; }
 function miss(ip) { const m = misses[ip]; if (!m || m.until < Date.now()) misses[ip] = { n: 1, until: Date.now() + 15 * 60000 }; else m.n++; }
 
-const publicUser = u => ({ id: u.id, name: u.name, role: isMember(u) ? 'member' : 'board', color: u.color || '', birthday: u.birthday || '' });
+const STATUSES = ['', 'home', 'away'];   // a housemate can pin "home" or "away" over what their calendar says
+const publicUser = u => ({ id: u.id, name: u.name, role: isMember(u) ? 'member' : 'board', color: u.color || '', birthday: u.birthday || '', status: u.status || '' });
 
 // ======================================================================
 // the merged calendar
@@ -425,6 +448,7 @@ async function route(req, res, p, url) {
             }
             me.birthday = b.birthday;
         }
+        if (b.status !== undefined) { if (STATUSES.indexOf(b.status) < 0) return send(res, 400, { error: 'Bad status' }); me.status = b.status; }
         writeJson(USERS_FILE, file); invalidate();
         return send(res, 200, { user: publicUser(me) });
     }

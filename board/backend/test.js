@@ -90,6 +90,19 @@ const week = manualByDay([{ title: 'A', start: '09:00', end: '10:00', days: [2] 
 assert.deepStrictEqual(Object.keys(week), ['2026-09-29', '2026-09-30', '2026-10-06']);   // Tuesdays + the one-off
 assert.strictEqual(week['2026-09-30'][0].ubc, true);
 
+// ---- multi-day events ----
+const trip = validateEvent({ title: 'Trip', start: '18:00', end: '12:00', date: '2026-10-09', endDate: '2026-10-11' });
+assert.ok(trip.ev && trip.ev.endDate === '2026-10-11', 'end time may be earlier than start when the dates differ');
+assert.ok(bad({ title: 'Trip', start: '09:00', end: '10:00', date: '2026-10-09', endDate: '2026-10-08' }), 'end date before start date is rejected');
+assert.ok(bad({ title: 'Trip', start: '09:00', end: '10:00', date: '2026-10-09', endDate: '2026-02-31' }), 'impossible end date is rejected');
+assert.ok(bad({ title: 'Trip', start: '10:00', end: '09:00', date: '2026-10-09' }), 'single day still needs end after start');
+assert.strictEqual(validateEvent({ title: 'X', start: '09:00', end: '10:00', date: '2026-10-09', endDate: '2026-10-09' }).ev.endDate, undefined, 'same end date is a one-day event');
+const span = manualByDay([trip.ev], '2026-10-08', '2026-10-12');
+assert.deepStrictEqual(Object.keys(span), ['2026-10-09', '2026-10-10', '2026-10-11']);
+assert.deepStrictEqual([span['2026-10-09'][0].start, span['2026-10-09'][0].end], ['18:00', '24:00']);
+assert.deepStrictEqual([span['2026-10-10'][0].start, span['2026-10-10'][0].end], ['00:00', '24:00']);
+assert.deepStrictEqual([span['2026-10-11'][0].start, span['2026-10-11'][0].end], ['00:00', '12:00']);
+
 // ---- passwords ----
 const h = hashPassword('shared-pass');
 assert.ok(checkPassword('shared-pass', h) && !checkPassword('Shared-pass', h) && !checkPassword('x', undefined));

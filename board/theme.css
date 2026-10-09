@@ -11,10 +11,10 @@
   color-scheme: light;
 }
 :root[data-theme="dark"] {
-  --bg: #141414; --bg2: #1e1e1e; --fg: #e6e6e6; --fg-dim: #9a9a9a; --faint: #5c5c5c;
-  --border: #333333; --line: #262626;
-  --green: #3fbf7f; --green-bg: rgba(63,191,127,.1); --green-line: rgba(63,191,127,.45); --red: #ef5b50;
-  --veil: rgba(20,20,20,.6); --hatch: rgba(255,255,255,.035); --shade: rgba(0,0,0,.6);
+  --bg: #000000; --bg2: #0c0c0c; --fg: #f4f4f4; --fg-dim: #b4b4b4; --faint: #6b6b6b;
+  --border: #2e2e2e; --line: #1d1d1d;
+  --green: #3fbf7f; --green-bg: rgba(63,191,127,.12); --green-line: rgba(63,191,127,.5); --red: #ef5b50;
+  --veil: rgba(0,0,0,.62); --hatch: rgba(255,255,255,.035); --shade: rgba(0,0,0,.7);
   color-scheme: dark;
 }
 :root { --cink: #1a1a1a; }

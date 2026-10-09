@@ -24,7 +24,9 @@
   .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   body.kiosk { cursor: none; }
   body.kiosk .chrome { display: none !important; }
-  .lab { font-family: var(--mono); font-size: .66rem; font-weight: 700; letter-spacing: .08em; color: var(--accent-text); text-transform: uppercase; }
+  body.kiosk .masthead { display: none; }
+  body.kiosk #frame { grid-template-rows: auto 1fr auto; }
+  .lab { font-family: var(--mono); font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: var(--accent-text); text-transform: uppercase; }
 
   /* ---------- masthead (the FLICKER band) ---------- */
   .masthead { display: flex; align-items: baseline; justify-content: space-between; padding: .5rem 1rem; background: var(--accent); color: var(--ink); font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
@@ -35,122 +37,123 @@
   .masthead .place { opacity: .75; }
 
   /* ---------- title row: clock, date, everyone-free, UBC status ---------- */
-  .top { display: flex; align-items: center; padding: .7rem 1rem .65rem; border-bottom: 2px solid var(--accent); }
+  .top { display: flex; align-items: center; padding: .45rem 1rem .4rem; border-bottom: 2px solid var(--accent); }
   .clock { display: flex; align-items: baseline; white-space: nowrap; }
   .clock .hm { font-family: var(--font); font-size: 3.3rem; font-weight: 700; letter-spacing: -.02em; line-height: .95; font-variant-numeric: lining-nums tabular-nums; }
-  .clock .sec { font-family: var(--mono); font-size: 1.2rem; margin-left: .35rem; color: var(--fg-dim); }
-  .clock .mer { font-family: var(--mono); font-size: .95rem; margin-left: .35rem; color: var(--fg-dim); }
+  .clock .sec { font-family: var(--mono); font-size: 1.4rem; margin-left: .35rem; color: var(--fg-dim); }
+  .clock .mer { font-family: var(--mono); font-size: 1.1rem; margin-left: .35rem; color: var(--fg-dim); }
   .date { margin-left: 1.3rem; white-space: nowrap; line-height: 1.05; }
   .date .dw { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; }
   .date .dd { font-size: 1.9rem; font-weight: 700; letter-spacing: -.02em; color: var(--accent-text); }
-  .date .dd small { font-size: .8rem; font-weight: 400; color: var(--fg-dim); letter-spacing: 0; margin-left: .4rem; }
 
   /* everyone free: the state, the window, and the day laid out as a bar */
-  .allfree { flex: 1; min-width: 0; margin: 0 1.3rem; padding: .5rem .85rem .55rem; background: var(--bg2); border: 1px solid var(--border); border-radius: .25rem; --c: var(--faint); }
+  .allfree { flex: 1; min-width: 0; margin: 0 1.3rem; padding: .4rem .85rem .4rem; background: var(--bg2); border: 1px solid var(--border); border-radius: .25rem; --c: var(--faint); }
   .allfree.on { --c: var(--green); } .allfree.soon { --c: var(--accent); }
   .allfree .hd { display: flex; align-items: center; justify-content: space-between; }
-  .allfree .chip { font-family: var(--mono); font-size: .62rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .45rem; border-radius: .2rem; background: var(--c); color: var(--bg); text-transform: uppercase; white-space: nowrap; }
+  .allfree .chip { font-family: var(--mono); font-size: .78rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .45rem; border-radius: .2rem; background: var(--c); color: var(--bg); text-transform: uppercase; white-space: nowrap; }
   .allfree.on .chip { color: #fff; } .allfree.soon .chip { color: var(--ink); }
-  .allfree .v { margin-top: .2rem; font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
+  .allfree .v { margin-top: .05rem; font-size: 1.55rem; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg); }
   .allfree.on .v { color: var(--green); }
   .allfree.none .v, .allfree.quiet .v { color: var(--fg-dim); }
-  .allfree .bar { position: relative; height: .5rem; margin-top: .4rem; border-radius: .25rem; background: var(--line); overflow: hidden; }
+  .allfree .bar { position: relative; height: .5rem; margin-top: .3rem; border-radius: .25rem; background: var(--line); overflow: hidden; }
   .allfree .bar i { position: absolute; top: 0; bottom: 0; background: var(--green); opacity: .85; }
   .allfree .bar u { position: absolute; top: -.1rem; bottom: -.1rem; width: .16rem; margin-left: -.08rem; background: var(--red); border-radius: .08rem; }
-  .allfree .ends { display: flex; justify-content: space-between; margin-top: .15rem; font-size: .55rem; color: var(--faint); }
-  .allfree .s { margin-top: .2rem; font-size: .7rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .allfree .ends { display: flex; justify-content: space-between; margin-top: .15rem; font-size: .7rem; color: var(--fg-dim); }
+  .allfree .s { margin-top: .1rem; font-size: .85rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .allfree .s b { color: var(--fg); }
   .status { flex: none; text-align: right; max-width: 14rem; }
-  .status .sub { margin-top: .35rem; font-family: var(--mono); font-size: .7rem; line-height: 1.3; color: var(--fg-dim); }
+  .status .sub { margin-top: .35rem; font-family: var(--mono); font-size: .85rem; line-height: 1.3; color: var(--fg-dim); }
   .status .sub b { color: var(--red); }
-  .pill { display: inline-block; padding: .2rem .5rem; border-radius: 3px; font-family: var(--mono); font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--fg); color: var(--fg); white-space: nowrap; }
+  .pill { display: inline-block; padding: .2rem .5rem; border-radius: 3px; font-family: var(--mono); font-size: .9rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border: 1px solid var(--fg); color: var(--fg); white-space: nowrap; }
   .pill.red { color: #fff; background: var(--red); border-color: var(--red); }
   .pill.amber { color: var(--ink); background: #f2c94c; border-color: #f2c94c; }
   
   /* ---------- main ---------- */
-  main { display: grid; grid-template-columns: 1fr 22rem; min-height: 0; }
+  main { display: grid; grid-template-columns: 1fr 24rem; min-height: 0; }
   #tl { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--border); padding: .5rem .5rem .45rem .35rem; }
   .tlhead, .tlbody { display: flex; }
-  .gut { width: 3.1rem; flex: none; position: relative; }
-  .colh { flex: 1; min-width: 0; text-align: center; font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 .2rem .35rem; margin: 0 .12rem; border-bottom: 2px solid var(--c, var(--border)); }
+  .gut { width: 3.6rem; flex: none; position: relative; }
+  .colh { flex: 1; min-width: 0; text-align: center; font-family: var(--mono); font-size: .95rem; font-weight: 700; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 .2rem .35rem; margin: 0 .12rem; border-bottom: 2px solid var(--c, var(--border)); }
   .colh.all { flex: .5; color: var(--green); --c: var(--green); }
   .tlbody { flex: 1; position: relative; min-height: 0; margin-top: .35rem; }
   .lines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
   .hl { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
-  .hl span { position: absolute; left: 0; top: -.5rem; width: 2.6rem; text-align: right; font-size: .66rem; color: var(--fg-dim); background: var(--bg); padding-right: .25rem; font-family: var(--mono); }
+  .hl span { position: absolute; left: 0; top: -.58rem; width: 3.1rem; text-align: right; font-size: .8rem; color: var(--fg-dim); background: var(--bg); padding-right: .25rem; font-family: var(--mono); }
   .hl.half { border-top: 1px dashed var(--line); }
-  .cols { position: absolute; top: 0; left: 3.1rem; right: 0; bottom: 0; display: flex; }
+  .cols { position: absolute; top: 0; left: 3.6rem; right: 0; bottom: 0; display: flex; }
   .col { flex: 1; position: relative; min-width: 0; margin: 0 .12rem; }
   .col.all { flex: .5; }
-  .col.all::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: 0; background: repeating-linear-gradient(135deg, var(--hatch) 0 .35rem, transparent .35rem .7rem); }
+  .col.all::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: 0; background: var(--bg2); border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
   /* solid colour cards, text colour picked for contrast; titles wrap, the number of lines is set from the card height */
   .ev { position: absolute; left: 0; right: 0; padding: .22rem .35rem; background: var(--c); color: var(--t); overflow: hidden; border-radius: .2rem; }
-  .ev b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); overflow: hidden; font-size: .8rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
-  .ev i { display: block; font-style: normal; font-family: var(--mono); font-size: .62rem; line-height: 1.25; opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ev b { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); overflow: hidden; font-size: .95rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .ev i { display: block; font-style: normal; font-family: var(--mono); font-size: .76rem; line-height: 1.25; opacity: .92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ev.now { box-shadow: inset 0 0 0 .14rem var(--t); }
   .ev.x { background: transparent; color: var(--faint); box-shadow: inset 0 0 0 1px var(--faint); }
   .ev.x b { text-decoration: line-through; }
   .free { position: absolute; left: .05rem; right: .05rem; background: var(--green-bg); border: 1px solid var(--green-line); color: var(--green); overflow: hidden; text-align: center; padding: .15rem .1rem; font-family: var(--mono); }
-  .free b { display: block; font-size: .74rem; letter-spacing: .1em; }
-  .free i { display: block; font-style: normal; font-size: .58rem; opacity: .85; }
+  .free b { display: block; font-size: .9rem; letter-spacing: .1em; }
+  .free i { display: block; font-style: normal; font-size: .72rem; opacity: .85; }
   .free.now { border-color: var(--green); border-width: 2px; }
-  .past { position: absolute; left: 3.1rem; right: 0; top: 0; background: var(--veil); pointer-events: none; z-index: 2; }
+  .past { position: absolute; left: 3.6rem; right: 0; top: 0; background: var(--veil); pointer-events: none; z-index: 2; }
   .nowline { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid var(--red); z-index: 3; }
-  .nowline::before { content: ""; position: absolute; left: 3.1rem; top: -.36rem; width: .6rem; height: .6rem; margin-left: -.3rem; border-radius: 50%; background: var(--red); }
-  .nowline span { position: absolute; left: 0; top: -.62rem; width: 2.9rem; text-align: center; background: var(--red); color: #fff; font-family: var(--mono); font-size: .72rem; font-weight: 700; border-radius: 3px; padding: .08rem 0; }
-  .closednote { position: absolute; left: 3.1rem; right: 0; bottom: .3rem; text-align: center; z-index: 1; font-family: var(--mono); font-size: .75rem; letter-spacing: .08em; color: var(--red); text-transform: uppercase; font-weight: 700; }
+  .nowline::before { content: ""; position: absolute; left: 3.6rem; top: -.36rem; width: .6rem; height: .6rem; margin-left: -.3rem; border-radius: 50%; background: var(--red); }
+  .nowline span { position: absolute; left: 0; top: -.7rem; width: 3.4rem; text-align: center; background: var(--red); color: #fff; font-family: var(--mono); font-size: .85rem; font-weight: 700; border-radius: 3px; padding: .08rem 0; }
+  .closednote { position: absolute; left: 3.6rem; right: 0; bottom: .3rem; text-align: center; z-index: 1; font-family: var(--mono); font-size: .9rem; letter-spacing: .08em; color: var(--red); text-transform: uppercase; font-weight: 700; }
 
   /* ---------- side ---------- */
   aside { display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
-  .card { padding: .65rem .85rem; border-bottom: 1px solid var(--border); min-width: 0; }
+  .card { padding: .5rem .85rem; border-bottom: 1px solid var(--border); min-width: 0; }
   .card:last-child { border-bottom: 0; }
-  .card h2 { margin: 0 0 .45rem; display: flex; justify-content: space-between; align-items: baseline; }
-  .card h2 em { font-family: var(--mono); font-style: italic; font-weight: 400; color: var(--fg-dim); letter-spacing: 0; text-transform: none; font-size: .64rem; }
+  .card h2 { margin: 0 0 .3rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .card h2 em { font-family: var(--mono); font-style: italic; font-weight: 400; color: var(--fg-dim); letter-spacing: 0; text-transform: none; font-size: .78rem; }
   .wx { display: flex; align-items: center; }
   .ico { color: var(--fg); }
-  .ico svg { display: block; width: 3.1rem; height: 3.1rem; }
+  .ico svg { display: block; width: 2.6rem; height: 2.6rem; }
   .ico .fill { fill: var(--bg); }
-  .wx .t { margin-left: .55rem; font-size: 3.1rem; font-weight: 700; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
+  .wx .t { margin-left: .55rem; font-size: 2.7rem; font-weight: 700; line-height: 1; letter-spacing: -.03em; font-variant-numeric: lining-nums tabular-nums; }
   .wx .t sup { font-family: var(--mono); font-size: 1rem; vertical-align: top; position: relative; top: .3rem; color: var(--fg-dim); font-weight: 400; letter-spacing: 0; }
-  .wx .d { margin-left: auto; text-align: right; font-family: var(--mono); font-size: .68rem; color: var(--fg-dim); line-height: 1.45; }
-  .wx .d b { display: block; font-family: var(--serif); color: var(--fg); font-size: 1rem; }
-  .hours { display: flex; margin-top: .55rem; border-top: 1px solid var(--line); padding-top: .45rem; }
-  .hours div { flex: 1; text-align: center; font-size: .95rem; }
-  .hours div b { display: block; font-family: var(--mono); color: var(--fg-dim); font-size: .64rem; font-weight: 700; }
+  .wx .d { margin-left: auto; text-align: right; font-family: var(--mono); font-size: .82rem; color: var(--fg-dim); line-height: 1.45; }
+  .wx .d b { display: block; font-family: var(--font); color: var(--fg); font-size: 1.15rem; }
+  .hours { display: flex; margin-top: .35rem; border-top: 1px solid var(--line); padding-top: .3rem; }
+  .hours div { flex: 1; text-align: center; font-size: 1.05rem; }
+  .hours div b { display: block; font-family: var(--mono); color: var(--fg-dim); font-size: .78rem; font-weight: 700; }
   .hours .ico { color: var(--fg-dim); }
-  .hours .ico svg { width: 1.35rem; height: 1.35rem; margin: .2rem auto .15rem; }
-  .hours div u { text-decoration: none; display: block; height: .9rem; font-family: var(--mono); color: var(--accent); font-size: .64rem; font-weight: 700; }
-  .who { display: flex; align-items: center; padding: .28rem 0; }
+  .hours .ico svg { width: 1.3rem; height: 1.3rem; margin: .1rem auto .05rem; }
+  .hours div u { text-decoration: none; display: block; height: .95rem; font-family: var(--mono); color: var(--accent-text); font-size: .78rem; font-weight: 700; }
+  .who { display: flex; align-items: center; padding: .13rem 0; }
   .who + .who { border-top: 1px solid var(--line); }
   .who .dot { width: .2rem; height: 1.1rem; background: var(--c); flex: none; margin-right: .55rem; }
-  .who .n { width: 5.4rem; flex: none; font-family: var(--mono); font-weight: 700; font-size: .82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .who .s { flex: 1; min-width: 0; font-size: .8rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who .n { width: 6.2rem; flex: none; font-family: var(--mono); font-weight: 700; font-size: .98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .who .s { flex: 1; min-width: 0; font-size: .92rem; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .who .s b { color: var(--fg); font-weight: 700; }
-  .tag { flex: none; margin-left: .4rem; font-family: var(--mono); font-size: .58rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .35rem; border-radius: 3px; text-transform: uppercase; }
+  .tag { flex: none; margin-left: .4rem; font-family: var(--mono); font-size: .72rem; font-weight: 700; letter-spacing: .08em; padding: .12rem .35rem; border-radius: 3px; text-transform: uppercase; }
   .tag.busy { background: var(--red); color: #fff; }
   .tag.ok { background: var(--green-bg); color: var(--green); }
   .tag.done { color: var(--faint); border: 1px solid var(--border); }
+  .tag.home { background: var(--accent); color: var(--ink); }
+  .tag.away { background: #8f6ad8; color: #fff; }
   .up { flex: 1; min-height: 0; overflow: hidden; }
-  .row { display: flex; align-items: center; padding: .3rem 0; }
+  .row { display: flex; align-items: center; padding: .2rem 0; }
   .row + .row { border-top: 1px solid var(--line); }
-  .row .dt { width: 3.3rem; flex: none; font-family: var(--mono); font-size: .64rem; color: var(--fg-dim); text-transform: uppercase; line-height: 1.15; }
-  .row .dt b { display: block; font-family: var(--serif); color: var(--fg); font-size: 1.1rem; }
-  .row .tx { flex: 1; min-width: 0; font-size: .86rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .row .tx small { display: block; font-family: var(--mono); font-size: .62rem; font-weight: 400; color: var(--fg-dim); }
-  .row .pill { font-size: .56rem; padding: .12rem .4rem; flex: none; margin-left: .4rem; }
-  .empty { color: var(--fg-dim); font-style: italic; font-size: .85rem; padding: .3rem 0; }
+  .row .dt { width: 4.6rem; flex: none; font-family: var(--mono); font-size: .8rem; color: var(--fg-dim); text-transform: uppercase; white-space: nowrap; }
+  .row .dt b { font-family: var(--font); color: var(--fg); font-size: 1.25rem; margin-right: .2rem; }
+  .row .tx { flex: 1; min-width: 0; font-size: 1rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .tx small { font-family: var(--mono); font-size: .76rem; font-weight: 400; color: var(--fg-dim); margin-left: .45rem; }
+  .row .pill { font-size: .7rem; padding: .12rem .4rem; flex: none; margin-left: .4rem; }
+  .empty { color: var(--fg-dim); font-style: italic; font-size: 1rem; padding: .3rem 0; }
 
   /* ---------- ticker ---------- */
-  footer { display: flex; align-items: stretch; height: 2.7rem; border-top: 1px solid var(--border); background: var(--bg2); }
+  footer { display: flex; align-items: stretch; height: 3.1rem; border-top: 1px solid var(--border); background: var(--bg2); }
   .vp { flex: 1; overflow: hidden; position: relative; min-width: 0; }
   .track { position: absolute; top: 0; left: 0; height: 100%; display: flex; align-items: center; white-space: nowrap; will-change: transform; animation: scroll 60s linear infinite; }
   @keyframes scroll { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
-  .tk { display: inline-flex; align-items: center; padding-right: 1.4rem; font-size: 1.05rem; }
-  .tk .g { font-family: var(--mono); font-size: .6rem; font-weight: 700; letter-spacing: .1em; padding: .18rem .45rem; border-radius: 3px; margin-right: .6rem; color: #fff; background: var(--fg-dim); }
+  .tk { display: inline-flex; align-items: center; padding-right: 1.4rem; font-size: 1.25rem; }
+  .tk .g { font-family: var(--mono); font-size: .76rem; font-weight: 700; letter-spacing: .1em; padding: .18rem .45rem; border-radius: 3px; margin-right: .6rem; color: #fff; background: var(--fg-dim); }
   .tk .g.bday { background: #e0538a; } .tk .g.food { background: var(--green); } .tk .g.uni { background: var(--red); }
   .tk .g.home { background: var(--accent); color: var(--ink); } .tk .g.wx { background: #4a86d8; } .tk .g.hol { background: #f2c94c; color: var(--ink); }
   .tk .g.event { background: #8f6ad8; }
-  .tk em { font-style: italic; color: var(--fg-dim); margin-left: .5rem; font-family: var(--mono); font-size: .8rem; }
+  .tk em { font-style: italic; color: var(--fg-dim); margin-left: .5rem; font-family: var(--mono); font-size: .95rem; }
   .tk::after { content: "/"; color: var(--faint); font-family: var(--mono); font-size: .9rem; margin-left: 1.4rem; }
 
   /* ---------- toast + display panel ---------- */
@@ -190,7 +193,7 @@
   </header>
   <div class="top" id="top">
     <div class="clock"><span class="hm" id="hm">--:--</span><span class="sec" id="sec"></span><span class="mer" id="mer"></span></div>
-    <div class="date"><div class="dw" id="dow"></div><div class="dd"><span id="dmy"></span><small id="yr"></small></div></div>
+    <div class="date"><div class="dw" id="dow"></div><div class="dd"><span id="dmy"></span></div></div>
     <div class="allfree" id="allfree"></div>
     <div class="status" id="banner"></div>
   </div>
@@ -362,12 +365,12 @@ function people() { return LIVE && LIVE.meta ? LIVE.meta : CONFIG.people; }
 function eventsFor(p, d) {
   var k = key(d), dow = d.getDay(), closed = dayInfo(d).closed, list;
   if (LIVE) {
-    list = ((LIVE.people[p.id] || {})[k] || []).map(function (e) { return { date: k, start: e.start, end: e.end, title: e.title, where: e.where, ubc: e.ubc }; });
+    list = ((LIVE.people[p.id] || {})[k] || []).map(function (e) { return { date: k, start: e.start, end: e.end, title: e.title, where: e.where, ubc: e.ubc, multi: e.multi }; });
   } else {
     list = (CONFIG.schedule[p.id] || []).filter(function (e) { return e.date ? e.date === k : e.days.indexOf(dow) > -1; });
   }
   return list.map(function (e) {
-    return { start: mins(e.start), end: mins(e.end), title: e.title, where: e.where || '', cancelled: !!(e.ubc && closed) };
+    return { start: mins(e.start), end: mins(e.end), title: e.title, where: e.where || '', multi: !!e.multi, cancelled: !!(e.ubc && closed) };
   }).sort(function (a, b) { return a.start - b.start; });
 }
 
@@ -501,7 +504,6 @@ function renderClock() {
 function renderHeader(d, m, free, info) {
   $('dow').textContent = DOW[d.getDay()];
   $('dmy').textContent = MON[d.getMonth()] + ' ' + d.getDate();
-  $('yr').textContent = d.getFullYear();
 
   var segs = awakeSegments(d), awake = isAwake(d), el = $('allfree');
   var wake = mins(CONFIG.quiet.wake), end = Math.min(bedtime(d), 1440), range = end - wake;
@@ -517,7 +519,7 @@ function renderHeader(d, m, free, info) {
 
   if (!awake) {
     el.className = 'allfree quiet';
-    el.innerHTML = '<div class="hd"><span class="lab">Quiet hours</span><span class="chip">shh</span></div><div class="v">Back at ' + t12(wake) + '</div>' +
+    el.innerHTML = '<div class="hd"><span class="lab">Quiet hours</span><span class="chip">shhhhh</span></div><div class="v">Back at ' + t12(wake) + '</div>' +
       '<div class="s">Free time counts from ' + t12(wake) + ' until ' + t12(bedtime(d) > 1440 ? bedtime(d) - 1440 : bedtime(d)) + (bedtime(d) > 1440 ? ' tonight' : '') + '</div>';
   } else if (cur) {
     var after = free.filter(function (w) { return w[0] > cur[1]; })[0];
@@ -579,19 +581,20 @@ function renderTimeline(d, m, free, info) {
   // people. every card shows as much as fits: the title first (wrapping up to three lines), then the time, then the place
   var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   ppl.forEach(function (p) {
-    var col = $('c-' + p.id), colRem = col.clientWidth / rem, perLine = Math.max(4, Math.floor((colRem - .75) / .5));
+    var col = $('c-' + p.id), colRem = col.clientWidth / rem, perLine = Math.max(4, Math.floor((colRem - .75) / .6));
     var ink = BoardTheme.inkOn(p.color);
 
     col.innerHTML = all[p.id].map(function (e) {
       var top = px(e.start) + 1, h = Math.max(px(e.end) - px(e.start) - 2, 6), hr = h / rem, live = !e.cancelled && m >= e.start && m < e.end;
-      var titleLines = Math.min(3, Math.max(1, Math.ceil(e.title.length / perLine))), lineH = .92, rowH = .78, avail = hr - .46;
+      var titleLines = Math.min(3, Math.max(1, Math.ceil(e.title.length / perLine))), lineH = 1.1, rowH = .95, avail = hr - .46;
       var showTime = false, showWhere = false;
 
       if (avail >= titleLines * lineH + rowH) { showTime = true; if (e.where && avail >= titleLines * lineH + rowH * 2) showWhere = true; }
       else if (titleLines > 1 && avail >= lineH + rowH) { showTime = true; titleLines = Math.max(1, Math.floor((avail - rowH) / lineH)); }
       else titleLines = Math.max(1, Math.floor(avail / lineH));
 
-      var sub = (showTime ? '<i>' + t12(e.start, true) + '–' + t12(e.end) + '</i>' : '') + (showWhere ? '<i>' + esc(e.where) + '</i>' : '');
+      var span = e.start === 0 && e.end === 1440 ? 'All day' : e.multi && e.end === 1440 ? 'from ' + t12(e.start) : e.multi && e.start === 0 ? 'until ' + t12(e.end) : t12(e.start, true) + '–' + t12(e.end);
+      var sub = (showTime ? '<i>' + span + '</i>' : '') + (showWhere ? '<i>' + esc(e.where) + '</i>' : '');
       var pad = h < 22 ? 'padding-top:0;padding-bottom:0;' : '';
 
       return '<div class="ev' + (e.cancelled ? ' x' : '') + (live ? ' now' : '') + '" style="--c:' + p.color + ';--t:' + ink + ';' + pad +
@@ -623,13 +626,12 @@ function renderTimeline(d, m, free, info) {
    ===================================================================== */
 function renderWeather(d) {
   var el = $('wx');
-  if (!WX) { el.innerHTML = '<h2 class="lab">Weather <em>' + esc(CONFIG.place.name) + '</em></h2><div class="empty">Loading weather…</div>'; return; }
+  if (!WX) { el.innerHTML = '<h2 class="lab">Weather</h2><div class="empty">Loading weather…</div>'; return; }
   var c = WX.current, w = WMO(c.weather_code, !c.is_day), hrs = wxHours(7, d);
   var stale = Date.now() - wxAt > 60 * 60000 ? ' · offline' : '';
-  var sunset = WX.daily.sunset[0].slice(11), sunrise = WX.daily.sunrise[0].slice(11);
-  el.innerHTML = '<h2 class="lab">Weather <em>' + esc(CONFIG.place.name) + stale + '</em></h2>' +
+  el.innerHTML = '<h2 class="lab">Weather' + (stale ? ' <em>offline</em>' : '') + '</h2>' +
     '<div class="wx">' + icon(w[0]) + '<div class="t">' + Math.round(c.temperature_2m) + '<sup>°C</sup></div>' +
-    '<div class="d"><b>' + w[1] + '</b>feels ' + Math.round(c.apparent_temperature) + '° · H ' + Math.round(WX.daily.temperature_2m_max[0]) + '° L ' + Math.round(WX.daily.temperature_2m_min[0]) + '°<br>rise ' + t12(mins(sunrise)) + ' · set ' + t12(mins(sunset)) + '</div></div>' +
+    '<div class="d"><b>' + w[1] + '</b>feels ' + Math.round(c.apparent_temperature) + '° · H ' + Math.round(WX.daily.temperature_2m_max[0]) + '° L ' + Math.round(WX.daily.temperature_2m_min[0]) + '°</div></div>' +
     '<div class="hours">' + hrs.map(function (x, i) {
       return '<div><b>' + (i === 0 ? 'Now' : t12(x.h * 60, true) + (x.h < 12 ? 'a' : 'p')) + '</b>' + icon(WMO(x.c, x.night)[0]) + Math.round(x.t) + '°<u>' + (x.p >= 20 ? x.p + '%' : '') + '</u></div>';
     }).join('') + '</div>';
@@ -641,8 +643,11 @@ function renderWho(d, m, all) {
     var cur = null, nxt = null;
     evs.forEach(function (e) { if (m >= e.start && m < e.end) cur = e; else if (e.start > m && !nxt) nxt = e; });
     var s, tag;
-    if (cur) { s = '<b>' + esc(cur.title) + '</b> until ' + t12(cur.end); tag = '<span class="tag busy">Busy</span>'; }
-    else if (nxt) { s = 'Free for ' + dur(nxt.start - m) + ' · then <b>' + esc(nxt.title) + '</b>'; tag = '<span class="tag ok">Free</span>'; }
+    // one line each. A manual home/away from the person's own page beats whatever the calendar says
+    if (p.status === 'home') { s = '<b>At home</b>'; tag = '<span class="tag home">Home</span>'; }
+    else if (p.status === 'away') { s = '<b>Away</b>'; tag = '<span class="tag away">Away</span>'; }
+    else if (cur) { s = '<b>' + esc(cur.title) + '</b> until ' + t12(cur.end); tag = '<span class="tag busy">Busy</span>'; }
+    else if (nxt) { s = 'Free until <b>' + t12(nxt.start) + '</b>'; tag = '<span class="tag ok">Free</span>'; }
     else { s = evs.length ? 'Done for the day' : 'Nothing on today'; tag = '<span class="tag ' + (evs.length ? 'done' : 'ok') + '">' + (evs.length ? 'Done' : 'Free') + '</span>'; }
     return '<div class="who" style="--c:' + p.color + '"><span class="dot"></span><span class="n">' + esc(p.name) + '</span><span class="s">' + s + '</span>' + tag + '</div>';
   }).join('');
@@ -661,23 +666,31 @@ function upcoming(d, horizon) {
   var out = [];
   for (var i = 1; i <= horizon; i++) {
     var day = addDays(d, i), h = HOL[key(day)];
-    if (h) out.push({ n: i, day: day, text: h.name, sub: h.ubc ? 'UBC closed' : '', kind: h.ubc ? 'red' : 'amber' });
+    if (h) out.push({ n: i, day: day, text: h.name, sub: '', kind: h.ubc ? 'red' : 'amber' });
   }
   people().forEach(function (p) {
     if (!p.birthday) return;
     var t = bdayDate(p, d), n = until(t, d);
     if (n >= 1 && n <= horizon) out.push({ n: n, day: t, text: p.name + '\'s birthday', sub: '', kind: 'bday' });
   });
+  // dated notices from the board settings (an event, a deadline) belong here too
+  ((LIVE && LIVE.house) ? LIVE.house.notices : CONFIG.notices).forEach(function (nt) {
+    if (!nt.date) return;
+    var t = new Date(nt.date + 'T12:00:00'), n = until(t, d);
+    if (n >= 1 && n <= horizon) out.push({ n: n, day: t, text: nt.text, sub: nt.from ? t12(mins(nt.from), true) + '–' + t12(mins(nt.to)) : '', kind: 'note' });
+  });
   return out.sort(function (a, b) { return a.n - b.n; });
 }
 
+// fills the card: every row that fits, nothing cut off halfway
 function renderUp(d) {
-  var list = upcoming(d, 21).slice(0, 6);
-  $('up').innerHTML = '<h2 class="lab">Coming up</h2>' + (list.length ? list.map(function (u) {
-    var lab = u.n === 1 ? 'Tomorrow' : 'in ' + u.n + ' days';
-    var pill = u.kind === 'red' ? '<span class="pill red">No class</span>' : u.kind === 'bday' ? '<span class="pill amber">Bday</span>' : '';
-    return '<div class="row"><div class="dt"><b>' + u.day.getDate() + '</b>' + DOW[u.day.getDay()].slice(0, 3) + '</div><div class="tx">' + esc(u.text) + '<small>' + lab + (u.sub ? ' · ' + u.sub : '') + '</small></div>' + pill + '</div>';
+  var list = upcoming(d, 240).slice(0, 60), box = $('up');
+  box.innerHTML = '<h2 class="lab">Coming up</h2>' + (list.length ? list.map(function (u) {
+    var pill = u.kind === 'red' ? '<span class="pill red">No class</span>' : u.kind === 'bday' ? '<span class="pill amber">Bday</span>' : u.kind === 'note' ? '<span class="pill">Event</span>' : '';
+    return '<div class="row"><div class="dt"><b>' + u.day.getDate() + '</b>' + MON[u.day.getMonth()].slice(0, 3) + '</div><div class="tx">' + esc(u.text) + '<small>' + (u.n === 1 ? 'tomorrow' : u.n < 8 ? DOW[u.day.getDay()].slice(0, 3) : 'in ' + u.n + 'd') + (u.sub ? ' · ' + esc(u.sub) : '') + '</small></div>' + pill + '</div>';
   }).join('') : '<div class="empty">Nothing on the horizon.</div>');
+  var rows = box.querySelectorAll('.row');
+  for (var i = rows.length - 1; i > 0 && box.scrollHeight > box.clientHeight + 1; i--) box.removeChild(rows[i]);
 }
 
 /* =====================================================================
@@ -695,12 +708,12 @@ function rainNotice(d) {
   if (wet(hrs[0]) && upAt(0)) {
     var clear = 0;
     for (var j = 1; j < hrs.length; j++) if (!wet(hrs[j])) { clear = j; break; }
-    return 'Raining now' + (clear ? ', should ease around ' + t12(hrs[clear].h * 60) : ' for the next few hours') + ' — take an umbrella';
+    return 'Raining now' + (clear ? ', should ease around ' + t12(hrs[clear].h * 60) : ' for the next few hours');
   }
   for (var i = 1; i < hrs.length; i++) {
     if (!wet(hrs[i]) || !upAt(i)) continue;
     var when = i <= 1 ? 'within the hour' : i <= 5 ? 'in about ' + i + ' h (' + t12(hrs[i].h * 60) + ')' : dayPart(hrs[i].h, new Date(d.getTime() + i * 3600000).getDate() !== d.getDate()) + ' around ' + t12(hrs[i].h * 60);
-    return 'Rain ' + when + ' · ' + hrs[i].p + '% — take an umbrella';
+    return 'Rain ' + when + ' · ' + hrs[i].p + '%';
   }
   return '';
 }
@@ -779,7 +792,7 @@ function render() {
    ===================================================================== */
 var de = document.documentElement;
 function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
-function isStandalone() { return window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+function isStandalone() { return /[?&]kiosk=1/.test(location.search) || window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
 function goFs() {
   var rq = de.requestFullscreen || de.webkitRequestFullscreen;
   if (!rq) { document.body.classList.add('kiosk'); return false; }
@@ -822,7 +835,7 @@ function setupFullscreen() {
 /* =====================================================================
    TV fit
    The old TV is not 16:9, so for the board login in full screen the board is laid out in a centred
-   16:10 frame: width first, height from the ratio, black outside it.
+   16:9.5 frame: width first, height from the ratio, black outside it.
    The width share is a per-device setting (hold the clock to change it, default 100%). ?tv=88 forces the frame on at 88%
    on any device, for testing; ?tv=off forces it off.
    ===================================================================== */
@@ -832,7 +845,7 @@ var store = {
 };
 var ROLE = store.get('board.role');   // remembered so the frame still applies if /api/me can't be reached
 var TV_DEFAULT = 100;
-var TV_RATIO_W = 16, TV_RATIO_H = 10;
+var TV_RATIO_W = 16, TV_RATIO_H = 9.5;
 var tvParam = /[?&]tv=([^&]+)/.exec(location.search);
 tvParam = tvParam ? tvParam[1] : null;
 function tvWidth() {
@@ -861,7 +874,7 @@ function fit() {
   var on = tvOn();
   document.body.classList.toggle('tv', on);
   if (on) {
-    // TV frame is 16:10, a little taller than 16:9: fill the width (TV-fit setting), take the height from the ratio,
+    // TV frame is 16:9.5, a little taller than 16:9: fill the width (TV-fit setting), take the height from the ratio,
     // centre it. If that is taller than the screen, fill the height and take the width from the ratio instead.
     var sw = window.innerWidth, sh = window.innerHeight, fw = sw * tvWidth() / 100, fh = fw * TV_RATIO_H / TV_RATIO_W;
     if (fh > sh) { fh = sh; fw = sh * TV_RATIO_W / TV_RATIO_H; }
@@ -873,7 +886,7 @@ function fit() {
   }
   var w = frame.clientWidth, h = frame.clientHeight, portrait = w < h;
   document.body.classList.toggle('portrait', portrait);
-  de.style.fontSize = (portrait ? Math.min(w, h) * .026 : Math.min(h / 50, w / 66)) + 'px';
+  de.style.fontSize = (portrait ? Math.min(w, h) * .028 : Math.min(h / 44, w / 72)) + 'px';
 }
 function relayout() { fit(); tickerSig = ''; render(); syncPanel(); }
 
