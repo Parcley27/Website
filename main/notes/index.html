@@ -475,9 +475,15 @@ function lectureHtml(l, query) {
     </details>`;
 }
 
+let GUIDE_TITLES = {};
+
 function guideHtml(g, query) {
   const body = query ? extractSnippets(g.notesMarkdown, query) : g.notesMarkdown;
   let html = renderMarkdownWithMath(body || "");
+  // [guide:id] in a guide's text becomes a link that opens that guide.
+  html = html.replace(/\[guide:([\w-]+)\]/g, (m, id) =>
+    GUIDE_TITLES[id] ? `<a href="#" class="guide-link" data-guide-link="${escapeHtml(id)}">${escapeHtml(GUIDE_TITLES[id])}</a>` : m
+  );
   if (query) html = highlight(html, query);
   const titleHtml = query ? highlight(escapeHtml(g.title), query) : escapeHtml(g.title);
   return `
@@ -621,6 +627,7 @@ async function renderClass(slug) {
 
   const lectures = [...data.lectures].sort((a, b) => b.date.localeCompare(a.date));
   const guides = data.studyGuides || [];
+  GUIDE_TITLES = Object.fromEntries(guides.map((g) => [g.id, g.title]));
 
   wrap.innerHTML = `
     <h1>${escapeHtml(data.displayName)}</h1>
@@ -720,6 +727,25 @@ async function renderClass(slug) {
   });
 
   guideEl.addEventListener("click", (e) => {
+    const link = e.target.closest("a.guide-link");
+    if (link) {
+      e.preventDefault();
+      const id = link.dataset.guideLink;
+      const find = () => document.querySelector(`details.guide[data-guide="${CSS.escape(id)}"]`);
+      let target = find();
+      if (!target) {
+        // a search filter may have hidden it
+        searchEl.value = "";
+        renderList(lectures, "", guides);
+        target = find();
+      }
+      if (!target) return;
+      target.open = true;
+      target.classList.add("flash");
+      setTimeout(() => target.classList.remove("flash"), 1500);
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
     if (!e.target.classList.contains("show-full-guide")) return;
     e.preventDefault();
     const details = e.target.closest("details.guide");
