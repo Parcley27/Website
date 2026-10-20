@@ -11,7 +11,7 @@ const USAGE_FILE = path.join(__dirname, "data", "ai-usage.json");
 const TRANSCRIPT_DIR = path.join(__dirname, "media", "transcripts");
 
 const ASK_MODEL = "claude-sonnet-5-5";
-const EXPLAIN_MODEL = "claude-haiku-4-5";
+const EXPLAIN_MODEL = "claude-haiku-5-5";
 
 // Hard ceiling on AI requests per day (asks + explains combined), so a stuck
 // retry loop or a bug in the page can't quietly run up the API bill.
@@ -144,6 +144,7 @@ async function explain(req, res) {
   const stream = client.messages.stream({
     model: EXPLAIN_MODEL,
     max_tokens: deeper ? 2500 : 1200,
+    output_config: { effort: "low" },
     system: EXPLAIN_SYSTEM,
     messages: [
       {

@@ -7,7 +7,7 @@ const https = require("https");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const MODEL = "claude-sonnet-5";
+const MODEL = "claude-sonnet-5-5";
 
 function callAnthropic(system, userText, maxTokens) {
   return new Promise((resolve, reject) => {
