@@ -41,7 +41,9 @@
 
   /* ---------- title row: clock, date, everyone-free, UBC status ---------- */
   .top { display: flex; align-items: center; padding: .45rem 1rem .4rem; border-bottom: 2px solid var(--accent); }
-  .clock { display: flex; align-items: baseline; white-space: nowrap; }
+  .clock { display: flex; align-items: center; white-space: nowrap; }
+  .clock .sm { display: flex; flex-direction: column; align-items: flex-start; margin-left: .45rem; line-height: 1.05; }
+  .clock .sm .sec, .clock .sm .mer { margin-left: 0; }
   .clock .hm { font-family: var(--font); font-size: 3.3rem; font-weight: 700; letter-spacing: -.02em; line-height: .95; font-variant-numeric: lining-nums tabular-nums; }
   .clock .sec { font-family: var(--mono); font-size: 1.4rem; margin-left: .35rem; color: var(--fg-dim); }
   .clock .mer { font-family: var(--mono); font-size: 1.1rem; margin-left: .35rem; color: var(--fg-dim); }
@@ -215,7 +217,7 @@
   </header>
   <div class="pbanner" id="party"><div class="msg" id="pmsg"></div><div class="pg"><span id="plabel"></span><div class="pbar"><i id="pfill"></i></div></div></div>
   <div class="top" id="top">
-    <div class="clock"><span class="hm" id="hm">--:--</span><span class="sec" id="sec"></span><span class="mer" id="mer"></span></div>
+    <div class="clock"><span class="hm" id="hm">--:--</span><span class="sm"><span class="sec" id="sec"></span><span class="mer" id="mer"></span></span></div>
     <div class="date"><div class="dw" id="dow"></div><div class="dd"><span id="dmy"></span></div></div>
     <div class="allfree" id="allfree"></div>
     <div class="status" id="banner"></div>
