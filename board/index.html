@@ -159,6 +159,25 @@
   .tk em { font-style: italic; color: var(--fg-dim); margin-left: .5rem; font-family: var(--mono); font-size: .95rem; }
   .tk::after { content: "/"; color: var(--faint); font-family: var(--mono); font-size: .9rem; margin-left: 1.4rem; }
 
+  /* ---------- birthday party mode: body.party is on while someone's birthday is today ---------- */
+  .pbanner { display: none; }
+  body.party .pbanner { display: flex; align-items: center; gap: 1.2rem; padding: .35rem 1rem; background: var(--pc); color: var(--pt); font-family: var(--mono); }
+  body.party #frame { grid-template-rows: auto auto auto 1fr auto; }
+  body.party.kiosk #frame { grid-template-rows: auto auto 1fr auto; }
+  body.party .top { border-bottom-color: var(--pc); }
+  .pbanner .msg { flex: none; display: flex; align-items: center; font-size: 1.5rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+  .pbanner .msg .crown { width: 2.2rem; height: 1.7rem; margin: 0 .6rem 0 0; }
+  .pbanner .pg { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: .8rem; font-size: .9rem; font-weight: 700; white-space: nowrap; }
+  .pbanner .pbar { flex: 0 1 20rem; min-width: 6rem; height: .75rem; border-radius: .4rem; background: rgba(0,0,0,.22); overflow: hidden; }
+  .pbanner .pbar i { display: block; height: 100%; width: 0; border-radius: .4rem; background: var(--pt); }
+  body.portrait .pbanner { flex-wrap: wrap; gap: .3rem 1rem; }
+  body.portrait .pbanner .pg { flex-basis: 100%; justify-content: flex-start; }
+  .crown { width: 1.2em; height: .95em; margin-left: .35rem; vertical-align: -.08em; flex: none; }
+  .who.bd { background: linear-gradient(90deg, rgba(242,201,76,.3), rgba(242,201,76,0) 85%); }
+  .colh.bd { border-bottom-color: #f2c94c; }
+  #confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15; display: none; }
+  body.party #confetti { display: block; }
+
   /* ---------- toast + display panel ---------- */
   .toast { position: fixed; left: 50%; bottom: 4.2rem; transform: translateX(-50%); z-index: 20; padding: .7rem 1.2rem; border-radius: 3px; background: var(--fg); color: var(--bg); font-family: var(--mono); font-size: .9rem; display: none; }
   .toast.on { display: block; }
@@ -194,6 +213,7 @@
       <button class="chrome" id="fsbtn" type="button">full screen</button>
     </nav>
   </header>
+  <div class="pbanner" id="party"><div class="msg" id="pmsg"></div><div class="pg"><span id="plabel"></span><div class="pbar"><i id="pfill"></i></div></div></div>
   <div class="top" id="top">
     <div class="clock"><span class="hm" id="hm">--:--</span><span class="sec" id="sec"></span><span class="mer" id="mer"></span></div>
     <div class="date"><div class="dw" id="dow"></div><div class="dd"><span id="dmy"></span></div></div>
@@ -211,6 +231,7 @@
   <footer>
     <div class="vp"><div class="track" id="track"></div></div>
   </footer>
+  <canvas id="confetti"></canvas>
   <div class="guides" id="guides"><span>&#9664; TV edge</span><span>TV edge &#9654;</span></div>
   <div class="panel" id="panel">
     <div class="lab">Display</div>
@@ -241,6 +262,8 @@ var CONFIG = {
   weatherRefreshMinutes: 20,
   calendarApi: 'api/calendar?days=14',  // board-backend (iCloud proxy). If it can't be reached, the sample schedule below is shown.
   calendarRefreshMinutes: 2,
+
+  birthYears: { michael: 2008 },      // optional: lets the party banner say which birthday it is
 
   people: [
     { id: 'andres',   name: 'Andres',   color: '#ff8a4c', birthday: '10-04' },
@@ -502,6 +525,7 @@ function renderClock() {
   $('hm').textContent = (h % 12 || 12) + ':' + pad(d.getMinutes());
   $('sec').textContent = ':' + pad(d.getSeconds());
   $('mer').textContent = h < 12 ? 'AM' : 'PM';
+  renderProgress();
 }
 
 function renderHeader(d, m, free, info) {
@@ -565,7 +589,7 @@ function renderTimeline(d, m, free, info) {
   var span = t1 - t0;
 
   var head = '<div class="gut"></div><div class="colh all">ALL</div>' + ppl.map(function (p) {
-    return '<div class="colh" style="--c:' + p.color + '">' + esc(p.name) + '</div>';
+    return '<div class="colh' + (BDAYS.indexOf(p.id) > -1 ? ' bd' : '') + '" style="--c:' + p.color + '">' + esc(p.name) + crown(p) + '</div>';
   }).join('');
   var cols = '<div class="col all" id="c-all"></div>' + ppl.map(function (p) { return '<div class="col" id="c-' + p.id + '"></div>'; }).join('');
   $('tl').innerHTML = '<div class="tlhead">' + head + '</div><div class="tlbody" id="tlb"><div class="lines" id="lines"></div><div class="cols">' + cols + '</div></div>';
@@ -652,7 +676,7 @@ function renderWho(d, m, all) {
     else if (cur) { s = '<b>' + esc(cur.title) + '</b> until ' + t12(cur.end); tag = '<span class="tag busy">Busy</span>'; }
     else if (nxt) { s = 'Free until <b>' + t12(nxt.start) + '</b>'; tag = '<span class="tag ok">Free</span>'; }
     else { s = evs.length ? 'Done for the day' : 'Nothing on today'; tag = '<span class="tag ' + (evs.length ? 'done' : 'ok') + '">' + (evs.length ? 'Done' : 'Free') + '</span>'; }
-    return '<div class="who" style="--c:' + p.color + '"><span class="dot"></span><span class="n">' + esc(p.name) + '</span><span class="s">' + s + '</span>' + tag + '</div>';
+    return '<div class="who' + (BDAYS.indexOf(p.id) > -1 ? ' bd' : '') + '" style="--c:' + p.color + '"><span class="dot"></span><span class="n">' + esc(p.name) + crown(p) + '</span><span class="s">' + s + '</span>' + tag + '</div>';
   }).join('');
   var bad = LIVE ? Object.keys(LIVE.errors || {}).filter(function (k) { return k !== 'holidays'; }).length : 0;
   $('who').innerHTML = '<h2 class="lab">Right now <em>' + (LIVE ? (bad ? 'calendars: ' + bad + ' failing' : 'live calendars') : 'sample data') + '</em></h2>' + rows;
@@ -732,7 +756,7 @@ function tickerItems(d, m) {
   people().forEach(function (p) {
     if (!p.birthday) return;
     var t = bdayDate(p, d), n = until(t, d);
-    if (n === 0) items.push({ g: 'BDAY', c: 'bday', t: 'Happy birthday, ' + p.name + '!' });
+    if (n === 0) items.push({ g: 'BDAY', c: 'bday', t: 'Happy ' + (ageOf(p, d) ? ordinal(ageOf(p, d)) + ' ' : '') + 'birthday, ' + p.name + '!' });
     else if (n <= 14) items.push({ g: 'BDAY', c: 'bday', t: p.name + '\'s birthday ' + (n === 1 ? 'is tomorrow' : 'is in ' + n + ' days') + ' (' + DOW[t.getDay()].slice(0, 3) + ' ' + MON[t.getMonth()].slice(0, 3) + ' ' + t.getDate() + ')' });
   });
 
@@ -773,10 +797,86 @@ function renderTicker(d, m) {
 }
 
 /* =====================================================================
+   birthday party mode: banner with a progress bar for the day, a crown on the birthday person, confetti.
+   Switches itself on from midnight to midnight on anyone's birthday and off again after.
+   ===================================================================== */
+var BDAYS = [];
+var CROWN = '<svg class="crown" viewBox="0 0 24 18" aria-hidden="true"><path d="M2 16.5L1 4l6 5 5-8 5 8 6-5-1 12.5z" fill="#f2c94c" stroke="#a07800" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="13" r="1.5" fill="#e0538a"/><circle cx="6.5" cy="13" r="1.1" fill="#4cc2ff"/><circle cx="17.5" cy="13" r="1.1" fill="#4cc2ff"/></svg>';
+function crown(p) { return BDAYS.indexOf(p.id) > -1 ? CROWN : ''; }
+function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+function ageOf(p, d) { var y = CONFIG.birthYears && CONFIG.birthYears[p.id]; return y ? d.getFullYear() - y : 0; }
+function birthdaysToday(d) {
+  var md = pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  return people().filter(function (p) { return p.birthday === md; });
+}
+
+var confetti = { raf: 0, parts: [], colors: [], w: 0, h: 0, sized: false };
+function startConfetti(own) {
+  var cv = $('confetti'), cx = cv.getContext && cv.getContext('2d');
+  if (!cx) return;
+  confetti.colors = (own || []).concat(['#f2c94c', '#e0538a', '#4cc2ff', '#8f6ad8', '#ff8a4c', '#5fd38d']);
+  if (confetti.raf) return;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function size() { confetti.w = cv.width = window.innerWidth; confetti.h = cv.height = window.innerHeight; }
+  function spawn(atTop) {
+    var u = Math.max(8, confetti.w / 120);
+    return { x: Math.random() * confetti.w, y: atTop ? -Math.random() * 40 : Math.random() * confetti.h,
+      w: u * (.6 + Math.random() * .6), h: u * (.3 + Math.random() * .4), vy: confetti.h / 11 * (.6 + Math.random() * .9),
+      sway: Math.random() * 6.3, sp: .6 + Math.random() * 1.2, rot: Math.random() * 6.3, vr: (Math.random() - .5) * 4, c: Math.floor(Math.random() * 99) };
+  }
+  size();
+  if (!confetti.sized) { confetti.sized = true; window.addEventListener('resize', size); }
+  var n = Math.min(90, Math.max(40, Math.round(confetti.w * confetti.h / 22000))), last = 0;
+  confetti.parts = [];
+  for (var i = 0; i < n; i++) confetti.parts.push(spawn(false));
+  (function frame(t) {
+    confetti.raf = requestAnimationFrame(frame);
+    if (document.hidden || t - last < 33) return;             // about 30 frames a second is plenty for an old iPad
+    var dt = Math.min(.1, last ? (t - last) / 1000 : .033);
+    last = t;
+    cx.clearRect(0, 0, confetti.w, confetti.h);
+    cx.globalAlpha = .88;
+    confetti.parts.forEach(function (q, k) {
+      q.y += q.vy * dt; q.sway += q.sp * dt; q.x += Math.sin(q.sway) * 18 * dt; q.rot += q.vr * dt;
+      if (q.y > confetti.h + 20) confetti.parts[k] = q = spawn(true);
+      cx.save(); cx.translate(q.x, q.y); cx.rotate(q.rot);
+      cx.fillStyle = confetti.colors[q.c % confetti.colors.length]; cx.fillRect(-q.w / 2, -q.h / 2, q.w, q.h);
+      cx.restore();
+    });
+  })(0);
+}
+function stopConfetti() {
+  if (!confetti.raf) return;
+  cancelAnimationFrame(confetti.raf); confetti.raf = 0;
+  var cv = $('confetti'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+}
+
+function renderProgress() {
+  if (!BDAYS.length) return;
+  var d = now(), secs = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds(), left = 86400 - secs;
+  $('pfill').style.width = (secs / 864).toFixed(2) + '%';
+  $('plabel').textContent = Math.floor(secs / 864) + '% of the birthday gone \u00b7 ' + Math.floor(left / 3600) + 'h ' + pad(Math.floor(left % 3600 / 60)) + 'm left';
+}
+
+function renderParty(d) {
+  var bs = birthdaysToday(d), on = bs.length > 0;
+  BDAYS = bs.map(function (p) { return p.id; });
+  document.body.classList.toggle('party', on);
+  if (!on) { stopConfetti(); return; }
+  var p = bs[0], age = bs.length === 1 ? ageOf(p, d) : 0, st = $('party').style;
+  $('pmsg').innerHTML = CROWN + esc('Happy ' + (age ? ordinal(age) + ' ' : '') + 'birthday, ' + bs.map(function (b) { return b.name; }).join(' & ') + '!');
+  st.setProperty('--pc', p.color);
+  st.setProperty('--pt', BoardTheme.inkOn(p.color));
+  startConfetti(bs.map(function (b) { return b.color; }));
+  renderProgress();
+}
+
+/* =====================================================================
    main loop
    ===================================================================== */
 function render() {
   var d = now(), m = d.getHours() * 60 + d.getMinutes(), info = dayInfo(d), free = freeWindows(d);
+  renderParty(d);                              // first: the other renderers read BDAYS
   var all = {};
   people().forEach(function (p) { all[p.id] = eventsFor(p, d); });
   renderHeader(d, m, free, info);
