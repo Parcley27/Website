@@ -31,8 +31,20 @@ function parseRepos() {
         });
 }
 
-async function ensureCloned({ url, dir }) {
+async function ensureCloned({ url, dir, mode }) {
     if (!fs.existsSync(dir)) {
+        if (mode === 'host') {
+            // host repos have no remote: create an empty bare repo that can be pushed to
+            console.log(`Creating hosted repo ${dir}...`);
+
+            await run('git', ['init', '--bare', '--initial-branch=main', dir], REPOS_ROOT);
+            await run('git', ['config', 'http.receivepack', 'true'], dir);
+
+            console.log(`Created ${dir}`);
+
+            return;
+        }
+
         console.log(`Cloning ${url} into ${dir}...`);
         
         await run('git', ['clone', '--mirror', url, dir], REPOS_ROOT);
@@ -48,8 +60,16 @@ async function syncRepo({ url, dir, webPath, mode }) {
     const timestamp = new Date().toISOString();
     
     try {
-        await ensureCloned({ url, dir });
+        await ensureCloned({ url, dir, mode });
         await run('git', ['config', 'http.receivepack', 'true'], dir);
+
+        if (mode === 'host') {
+            // lives only on this server: never pushed to or fetched from GitHub
+            console.log(`[${timestamp}] Hosted ${webPath}`);
+
+            return;
+        }
+
         if (mode === 'sync') {
             await run('git', ['push', '--mirror'], dir);
 

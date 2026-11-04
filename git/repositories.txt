@@ -1,3 +1,7 @@
+# url webPath mode
+#   sync   push to GitHub, then fetch from it (two-way)
+#   mirror fetch from GitHub only (one-way copy)
+#   host   lives only on this server and never contacts GitHub (url is "-"); created empty if missing
 https://github.com/Parcley27/Coding-Club-Game.git /coding-club-project sync
 https://github.com/Parcley27/Website.git /website sync
 https://github.com/Parcley27/AeroStream.git /aerostream sync
@@ -5,4 +9,4 @@ https://github.com/Parcley27/FLICKER.git /FLICKER sync
 https://github.com/Parcley27/Engines.git /engines sync
 https://github.com/CouldNot/personal-website.git /dale-website mirror
 https://github.com/CouldNot/neetcode150.git /neetcode150 mirror
-https://github.com/Parcley27/Cosmo.git /Cosmo sync
+- /Cosmo host
