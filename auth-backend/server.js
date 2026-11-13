@@ -126,6 +126,8 @@ function deviceFor(req, realm) {
     return d && d.realm === realm && d.expires > Date.now() ? d : null;
 }
 
+// replace every {{KEY}} (not just the first)
+const fill = (tpl, vars) => Object.keys(vars).reduce((t, k) => t.split('{{' + k + '}}').join(vars[k]), tpl);
 const PAGE = fs.readFileSync(path.join(__dirname, 'login.html'), 'utf8');
 const MANAGE = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
 <title>Devices · {{LABEL}}</title>
@@ -166,8 +168,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (p === '/login' && m === 'GET' && realm) {
-        return send(res, 200, PAGE.replace('{{LABEL}}', realm.label).replace('{{REALM}}', realmKey)
-            .replace('{{DAYS}}', String(realm.days)).replace('{{NEXT}}', safeNext(url.searchParams.get('next')).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';')));
+        return send(res, 200, fill(PAGE, {
+            LABEL: realm.label, REALM: realmKey, DAYS: String(realm.days),
+            NEXT: safeNext(url.searchParams.get('next')).replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';')
+        }));
     }
 
     if (p === '/login' && m === 'POST') {
