@@ -1,0 +1,21 @@
+[Unit]
+Description=Shared sign-in with remembered devices for pierceoxley.ca pages (nginx auth_request)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/pierceoxley.ca/auth-backend
+Environment=PORT=4034
+StateDirectory=site-auth-gateway
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

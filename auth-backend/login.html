@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sign in · {{LABEL}}</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  :root { color-scheme: light dark; --bg:#f6f5f2; --card:#fff; --fg:#1b1b1b; --muted:#6b6b6b; --line:#d9d6cf; --accent:#1b1b1b; --accent-fg:#fff; --err:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#141414; --card:#1d1d1d; --fg:#f0efeb; --muted:#9a9a96; --line:#333; --accent:#f0efeb; --accent-fg:#141414; --err:#ff8a80; } }
+  * { box-sizing: border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--fg); font:16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; padding:16px; }
+  form { width:100%; max-width:360px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:28px 24px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  p.sub { margin:0 0 20px; color:var(--muted); font-size:14px; }
+  label.f { display:block; font-size:13px; color:var(--muted); margin:14px 0 4px; }
+  input[type=text], input[type=password] { width:100%; font:inherit; color:inherit; background:transparent; border:1px solid var(--line); border-radius:8px; padding:11px 12px; }
+  input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .pw { position:relative; }
+  .pw button { position:absolute; right:6px; top:50%; transform:translateY(-50%); border:0; background:none; color:var(--muted); font:inherit; font-size:13px; padding:6px 8px; cursor:pointer; }
+  .remember { display:flex; gap:10px; align-items:flex-start; margin:18px 0 6px; font-size:14px; cursor:pointer; }
+  .remember input { margin-top:3px; width:16px; height:16px; }
+  .remember small { display:block; color:var(--muted); font-size:12px; }
+  button.go { width:100%; margin-top:16px; font:inherit; font-weight:600; background:var(--accent); color:var(--accent-fg); border:0; border-radius:8px; padding:12px; cursor:pointer; }
+  button.go:disabled { opacity:.6; cursor:default; }
+  #err { color:var(--err); font-size:14px; min-height:20px; margin-top:12px; }
+</style>
+</head>
+<body>
+<form id="f" method="post" action="/_auth/login" data-next="{{NEXT}}">
+  <h1>{{LABEL}}</h1>
+  <p class="sub">Sign in to continue.</p>
+  <label class="f" for="u">Username</label>
+  <input id="u" name="username" type="text" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" required autofocus>
+  <label class="f" for="p">Password</label>
+  <div class="pw">
+    <input id="p" name="password" type="password" autocomplete="current-password" required>
+    <button type="button" id="show" aria-pressed="false">show</button>
+  </div>
+  <label class="remember"><input id="r" type="checkbox" checked>
+    <span>Remember this device<small>Stay signed in for {{DAYS}} days. Untick on a shared computer.</small></span></label>
+  <button class="go" id="go" type="submit">Sign in</button>
+  <div id="err" role="alert"></div>
+</form>
+<script>
+(function () {
+  var f = document.getElementById('f'), u = document.getElementById('u'), p = document.getElementById('p'),
+      err = document.getElementById('err'), go = document.getElementById('go');
+  var KEY = 'signin-user-{{REALM}}';
+  try { var saved = localStorage.getItem(KEY); if (saved) { u.value = saved; p.focus(); } } catch (e) {}
+  document.getElementById('show').onclick = function () {
+    var on = p.type === 'password'; p.type = on ? 'text' : 'password';
+    this.textContent = on ? 'hide' : 'show'; this.setAttribute('aria-pressed', on);
+  };
+  f.addEventListener('submit', function (e) {
+    e.preventDefault(); err.textContent = ''; go.disabled = true;
+    fetch('/_auth/login', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ realm: '{{REALM}}', username: u.value, password: p.value, remember: document.getElementById('r').checked, next: f.dataset.next })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok) { err.textContent = x.j.error || 'Could not sign in'; go.disabled = false; p.select(); return; }
+        try { localStorage.setItem(KEY, u.value); } catch (e) {}
+        location.replace(x.j.next || '/');
+      })
+      .catch(function () { err.textContent = 'Network problem, try again'; go.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
